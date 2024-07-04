@@ -1,0 +1,5 @@
+yfinance
+plotly
+prophet
+streamlit
+numpy==1.26.4
