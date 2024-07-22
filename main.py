@@ -14,8 +14,12 @@ START = "2010-01-01"
 TODAY = date.today().strftime("%Y-%m-%d")
 
 # The Streamlit app header
-st.set_page_config(page_title="Finance Predictor App", page_icon="💰")
-st.title("💰 Finance Predictor App")
+st.set_page_config(
+    page_title="Finance Predictor App",
+    page_icon="💶",
+    initial_sidebar_state="expanded"
+)
+st.title("💶 Finance Predictor App")
 st.write(
     """
     Predict assets like stocks, currencies, world indices, cryptocurrencies, and futures 
