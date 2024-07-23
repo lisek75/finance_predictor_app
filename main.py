@@ -1,6 +1,3 @@
-import subprocess
-import sys
-
 import streamlit as st
 from datetime import date
 import re
@@ -13,7 +10,7 @@ import altair as alt
 START = "2010-01-01"
 TODAY = date.today().strftime("%Y-%m-%d")
 
-# The Streamlit app header
+# Configure the Streamlit app header
 st.set_page_config(
     page_title="Finance Predictor App",
     page_icon="💶",
@@ -31,8 +28,17 @@ st.divider()
 
 # Load CSS
 def load_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    """
+    Load and apply custom CSS styles.
+
+    Args:
+        file_name (str): Path to the CSS file.
+    """
+    try:
+        with open(file_name) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Error loading CSS: {e}")
 
 load_css("static/styles.css")
 
@@ -49,55 +55,57 @@ if user_input:
     tickers = re.split(r'\s+', user_input.strip())
     
     if len(tickers) != 1:
-        st.error("❌ Please provide exactly one ticker symbol. You can find a full list of tickers [here](https://finance.yahoo.com/trending-tickers). 🧐")
+        st.error("❌ Please provide one ticker. You can find a full list of tickers [here](https://finance.yahoo.com/trending-tickers). 🧐")
     else:
         ticker = tickers[0]
         if validate_ticker(ticker):
             selected_stock = ticker
-            ticker_info = get_ticker_info(selected_stock)
-            st.write(f"{ticker_info} ({selected_stock})")
+            try:
+                ticker_info = get_ticker_info(selected_stock)
+                st.write(f"{ticker_info} ({selected_stock})")
 
-            # Display a loading spinner while data is being loaded
-            with st.spinner('📈 Loading data... Hold tight! 🚀'):
-                data = load_data(selected_stock, START, TODAY)
+                # Display a loading spinner while data is being loaded
+                with st.spinner('📈 Loading data... Hold tight! 🚀'):
+                    data = load_data(selected_stock, START, TODAY)
 
-            st.write("######")
+                st.write("######")
 
-            # Create tabs
-            tab1, tab2 = st.tabs(["🔍 Explore", "🔮 Predict"])
+                # Create tabs
+                tab1, tab2 = st.tabs(["🔍 Explore", "🔮 Predict"])
 
-            with tab1:
-                st.write("#####")
-                # Create an Altair chart
-                chart = alt.Chart(data).mark_line().encode(
-                    x=alt.X('Date:T', axis=alt.Axis(title='date', tickCount="year")),
-                    y=alt.Y('Close:Q', axis=alt.Axis(title='close price')),
-                    tooltip=[alt.Tooltip('Date:T', title='Date'), alt.Tooltip('Close:Q', title='Close', format='.2f')],
-                ).interactive()
-                st.altair_chart(chart, use_container_width=True)
+                with tab1:
+                    st.write("#####")
+                    # Create an Altair chart
+                    chart = alt.Chart(data).mark_line(strokeWidth=3).encode(
+                        x=alt.X('Date:T', axis=alt.Axis(title='date', tickCount="year")),
+                        y=alt.Y('Close:Q', axis=alt.Axis(title='close price')),
+                        tooltip=[alt.Tooltip('Date:T', title='Date'), alt.Tooltip('Close:Q', title='Close', format='.2f')],
+                    ).interactive()
+                    st.altair_chart(chart, use_container_width=True)
 
-            with tab2:
+                with tab2:
+                    st.write("#####")
 
-                st.write("#####")
+                    n_years = st.slider(r"$\textsf{\normalsize Years\ of\ prediction:}$", 1, 4)
+                    period = n_years * 365
 
-                n_years = st.slider(r"$\textsf{\normalsize Years\ of\ prediction:}$", 1, 4)
-                period = n_years * 365
+                    # Fit the Prophet model and make predictions
+                    with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
+                        m, forecast = prophet_model.fit_prophet_model(data, period)
 
-                # Fit the Prophet model and make predictions
-                with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
-                    m, forecast = prophet_model.fit_prophet_model(data, period)
+                    # Perform cross-validation and calculate performance metrics
+                    with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
+                        df_cv = prophet_model.cross_validate_model(m)
+                    global_mape = mean_absolute_percentage_error(df_cv['y'], df_cv['yhat'])
+                    m_accuracy = 100 - global_mape
 
-                # Perform cross-validation and calculate performance metrics
-                with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-                    df_cv = prophet_model.cross_validate_model(m)
-                global_mape = mean_absolute_percentage_error(df_cv['y'], df_cv['yhat'])
-                m_accuracy = 100 - global_mape
+                    # Plot the forecasted data
+                    st.markdown(f"<p style='font-size:20px; font-weight:bold;'>Model Accuracy: {m_accuracy:.2f}%</p>", 
+                                unsafe_allow_html=True)
+                    forecast_fig = prophet_model.plot_forecast(m, forecast)
+                    st.altair_chart(forecast_fig, use_container_width=True)
 
-                # Plot the forecasted data
-                st.markdown(f"<p style='font-size:20px; font-weight:bold;'>Model Accuracy: {m_accuracy:.2f}%</p>", 
-                            unsafe_allow_html=True)
-                forecast_fig = prophet_model.plot_forecast(m, forecast)
-                st.altair_chart(forecast_fig, use_container_width=True)
-
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
         else:
             st.error("❌ Please provide a valid ticker. You can find a full list of tickers [here](https://finance.yahoo.com/trending-tickers). 🧐")
