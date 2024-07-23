@@ -1,8 +1,9 @@
+#prophet_model.py
+
 from prophet import Prophet
 from prophet.diagnostics import cross_validation
-from prophet.plot import plot_plotly
-import plotly.graph_objs as go
 import warnings
+import altair as alt
 
 # Fit the model
 def fit_prophet_model(data, period):
@@ -20,31 +21,70 @@ def cross_validate_model(m):
         df_cv = cross_validation(m, initial='730 days', period='180 days', horizon='365 days')
     return df_cv
 
-# Plot the forecast
+# Plot the forecast using Altair
 def plot_forecast(m, forecast):
-    forecast_fig = plot_plotly(m, forecast)
+    # Get the historical data
+    df = m.history.copy()
 
-    # Remove existing legend entries
-    for trace in forecast_fig['data']:
-        trace['showlegend'] = False
-
-    # Add custom legend entries for clarity
-    legend_entries = [
-        go.Scatter(x=[None], y=[None], mode='markers', marker=dict(size=10, color='black'),
-                   legendgroup='Actual Data', showlegend=True, name='Actual Data'),
-        go.Scatter(x=[None], y=[None], mode='lines', line=dict(color='#4494be'),
-                   legendgroup='Forecast', showlegend=True, name='Forecast'),
-        go.Scatter(x=[None], y=[None], mode='lines', fill='toself', fillcolor='#c0eaf8',
-                   line=dict(color='#c0eaf8'), legendgroup='Uncertainty', showlegend=True, name='Uncertainty Interval')
-    ]
-
-    forecast_fig.add_traces(legend_entries)
-
-    forecast_fig.update_layout(
-        xaxis_title="Date",
-        yaxis_title="Forecasted Value",
-        xaxis=dict(rangeslider=dict(visible=False), type="date"),
-        showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5)
+    # Create a color scale for the legend
+    color_scale = alt.Scale(
+        domain=['Actual', 'Predicted', 'Uncertainty'],
+        range=['black', '#4494be', '#FFB6C1']
     )
-    return forecast_fig
+
+    # Actual data points
+    actual = alt.Chart(df).mark_point(size=5).encode(
+        x=alt.X('ds:T', axis=alt.Axis(title='date', tickCount="year")),
+        y=alt.Y('y:Q', title='forecast'),
+        tooltip=[alt.Tooltip('ds:T', title='Date'), alt.Tooltip('y:Q', title='Actual Value', format='.2f')],
+        color=alt.value('black')
+    ).transform_calculate(
+        legend_label='"Actual"'
+    ).encode(
+        color=alt.Color('legend_label:N', scale=color_scale)
+    )
+
+    # Forecast line
+    forecast_line = alt.Chart(forecast).mark_line(strokeWidth=3).encode(
+        x='ds:T',
+        y='yhat:Q',
+        tooltip=[alt.Tooltip('ds:T', title='Date'), alt.Tooltip('yhat:Q', title='Predicted Value', format='.2f')],
+        color=alt.value('#4494be')
+    ).transform_calculate(
+        legend_label='"Predicted"'
+    ).encode(
+        color=alt.Color('legend_label:N', scale=color_scale)
+    )
+
+    # Uncertainty interval
+    uncertainty = alt.Chart(forecast).mark_area(opacity=0.3).encode(
+        x='ds:T',
+        y='yhat_lower:Q',
+        y2='yhat_upper:Q',
+        tooltip=[alt.Tooltip('ds:T', title='Date'), alt.Tooltip('yhat_lower:Q', title='Lower Bound'), alt.Tooltip('yhat_upper:Q', title='Upper Bound')],
+        color=alt.value('#FFB6C1')
+    ).transform_calculate(
+        legend_label='"Uncertainty"'
+    ).encode(
+        color=alt.Color('legend_label:N', scale=color_scale)
+    )
+
+    # Combine the layers
+    chart = alt.layer(
+        uncertainty,
+        forecast_line,
+        actual
+    ).properties(
+        width=800,
+        height=400
+    ).configure_legend(
+        title=None,
+        orient='bottom',
+        direction='horizontal',
+        strokeColor='gray',
+        fillColor='#EEEEEE',
+        padding=10,
+        cornerRadius=10,
+    ).interactive()
+
+    return chart
