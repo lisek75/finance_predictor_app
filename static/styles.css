@@ -1,0 +1,8 @@
+
+.stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+    font-size: 18px;
+    font-weight: bold;
+}
+#vg-tooltip-element {
+    z-index: 1000051;
+}

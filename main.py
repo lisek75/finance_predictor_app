@@ -29,6 +29,13 @@ st.write(
 )
 st.divider()
 
+# Load CSS
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+load_css("static/styles.css")
+
 # User input for the ticker symbol
 user_input = st.text_input(
     r"$\textsf{\normalsize Enter\ a\ ticker\ }$",
@@ -59,25 +66,15 @@ if user_input:
             # Create tabs
             tab1, tab2 = st.tabs(["🔍 Explore", "🔮 Predict"])
 
-            # Custom CSS for tabs
-            st.markdown("""
-            <style>
-                .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-                    font-size: 18px;
-                    font-weight: bold;
-                }
-            </style>""", unsafe_allow_html=True)
-
-
             with tab1:
                 st.write("#####")
                 # Create an Altair chart
                 chart = alt.Chart(data).mark_line().encode(
                     x=alt.X('Date:T', axis=alt.Axis(title='date', tickCount="year")),
                     y=alt.Y('Close:Q', axis=alt.Axis(title='close price')),
+                    tooltip=[alt.Tooltip('Date:T', title='Date'), alt.Tooltip('Close:Q', title='Close', format='.2f')],
                 ).interactive()
                 st.altair_chart(chart, use_container_width=True)
-
 
             with tab2:
 
