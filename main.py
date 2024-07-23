@@ -31,7 +31,7 @@ st.divider()
 
 # User input for the ticker symbol
 user_input = st.text_input(
-    r"$\textsf{\normalsize Enter\ the\ ticker\ for\ prediction }$",
+    r"$\textsf{\normalsize Enter\ a\ ticker\ }$",
     label_visibility="visible",
     disabled=False,
     placeholder="e.g. AAPL, BTC=F, EURUSD=X",
@@ -57,22 +57,13 @@ if user_input:
             st.write("######")
 
             # Create tabs
-            tab1, tab2 = st.tabs(["🔍 Data Exploratory", "🔮 Forecast"])
+            tab1, tab2 = st.tabs(["🔍 Explore", "🔮 Predict"])
 
             # Custom CSS for tabs
             st.markdown("""
             <style>
-                .stTabs [data-baseweb="tab-list"] {
-                    gap: 100px;
-                }
-                .stTabs [data-baseweb="tab"] {
-                    height: 50px;
-                    padding-top: 10px;
-                    padding-bottom: 10px;
-                    background-color: transparent;
-                }
                 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-                    font-size: 20px;
+                    font-size: 18px;
                     font-weight: bold;
                 }
             </style>""", unsafe_allow_html=True)

@@ -80,7 +80,7 @@ def plot_forecast(m, forecast):
     ).configure_legend(
         title=None,
         orient='bottom',
-        direction='horizontal',
+        direction='vertical',
         strokeColor='gray',
         fillColor='#EEEEEE',
         padding=10,
