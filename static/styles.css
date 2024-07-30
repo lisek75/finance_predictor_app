@@ -2,6 +2,12 @@
     font-size: 18px;
     font-weight: bold;
 }
+/* Ensures tooltip for Altair charts appears above other elements */
 #vg-tooltip-element {
     z-index: 1000051;
 }
+.model-accuracy {
+    font-size: 20px;
+    font-weight: bold;
+}
+
