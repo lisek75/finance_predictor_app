@@ -75,11 +75,8 @@ if user_ticker_input:
                 with st.spinner('📈 Loading data... Hold tight! 🚀'):
                     data = load_data_cached(selected_stock, START, TODAY)  # Use cached data
 
-                # Navigation options
-                options = st.radio(" ", ["🔍 Explore", "🔮 Predict"], horizontal=True)
-
                 # Conditional content based on selected option
-                if options == "🔍 Explore":
+                with st.expander("🔍 Explore"):
                     st.write("#####")
 
                     # Create an Altair chart
@@ -110,8 +107,8 @@ if user_ticker_input:
                         if openai_api_key:
                             try:
                                 # Initialize the ChatOpenAI instance and data agent
-                                chat = ChatOpenAI(api_key=openai_api_key, temperature=0.0)
-                                agent = create_pandas_dataframe_agent(chat, data, verbose=True, allow_dangerous_code=True)
+                                llm = ChatOpenAI(api_key=openai_api_key, temperature=0.5)
+                                agent = create_pandas_dataframe_agent(llm, data, verbose=True, allow_dangerous_code=True)
 
                                 if user_prompt:
                                     with st.spinner("Generating response...🤖"):
@@ -125,27 +122,33 @@ if user_ticker_input:
                         else:
                             st.warning("⚠️ Please enter your OpenAI API key.")
 
-                elif options == "🔮 Predict":
+                with st.expander("🔮 Forecast", expanded=False):
                     st.write("#####")
 
+                    # Slider for selecting the number of years for prediction
                     n_years = st.slider(r"$\textsf{\normalsize Years\ of\ prediction:}$", 1, 4)
                     period = n_years * 365
 
-                    # Fit the Prophet model and make predictions
-                    with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
-                        m, forecast = prophet_model.fit_prophet_model(data, period)
+                    # Button to trigger the prediction
+                    # predict_button = st.button("Predict")
 
-                    # Perform cross-validation and calculate performance metrics
-                    with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-                        df_cv = prophet_model.cross_validate_model(m)
-                    global_mape = mean_absolute_percentage_error(df_cv['y'], df_cv['yhat'])
-                    m_accuracy = 100 - global_mape
+                    if st.button("Predict"):
+                        # Fit the Prophet model and make predictions
+                        with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
+                            m, forecast = prophet_model.fit_prophet_model(data, period)
 
-                    # Plot the forecasted data
-                    st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
+                        # Perform cross-validation and calculate performance metrics
+                        with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
+                            df_cv = prophet_model.cross_validate_model(m)
+                        global_mape = mean_absolute_percentage_error(df_cv['y'], df_cv['yhat'])
+                        m_accuracy = 100 - global_mape
 
-                    forecast_fig = prophet_model.plot_forecast(m, forecast)
-                    st.altair_chart(forecast_fig, use_container_width=True)
+                        # Display the model accuracy and plot the forecasted data
+                        st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
+
+                        forecast_fig = prophet_model.plot_forecast(m, forecast)
+                        st.altair_chart(forecast_fig, use_container_width=True)
+
 
             except Exception as e:
                 st.error(f"An error occurred: {e}")

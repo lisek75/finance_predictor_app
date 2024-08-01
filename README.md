@@ -17,7 +17,7 @@ Predict assets like currencies, cryptocurrencies, and stock prices using ML mode
 
 ### 📚 Prerequisites
 
-- Python 3.7 or higher
+- Python 3.8 or higher
 - Proficiency in Python programming
 - Advanced understanding of machine learning models
 - Familiarity with time series analysis

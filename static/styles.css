@@ -1,6 +1,7 @@
+/* Styling for tab button text */
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-    font-size: 18px;
     font-weight: bold;
+    font-size: 14px;
 }
 /* Ensures tooltip for Altair charts appears above other elements */
 #vg-tooltip-element {
@@ -9,5 +10,13 @@
 .model-accuracy {
     font-size: 20px;
     font-weight: bold;
+}
+/* Hover effect for the summary (label) inside the expander */
+[data-testid="stExpander"] details:hover summary{
+    background-color: rgba(173, 216, 230, 0.1);
+}
+/* Styling for the paragraph text (label) inside the expander */
+[data-testid="stExpander"] p {
+    font-size: 16px;
 }
 
