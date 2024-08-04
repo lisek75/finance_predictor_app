@@ -16,7 +16,7 @@ def explore(data):
     st.write("#####")
     plot_data(data)
 
-    st.markdown("🤖 This bot can answer questions about the average, high, and low price, volume, trends, and other financial metrics for the selected ticker. 📈")
+    st.markdown("🤖 Using GPT-4 and LangChain/OpenAI, this AI can answer questions about price, volume, trends, and other financial metrics.")
 
     openai_api_key = st.text_input(
         r"$\textsf{\small Enter\ your\ OpenAI\ API:}$",
@@ -37,10 +37,10 @@ def explore(data):
         if openai_api_key:
             if user_prompt:
                 with st.spinner("Generating response...🤖"):
-                    llm = ChatOpenAI(api_key=openai_api_key, temperature=0.5)
+                    llm = ChatOpenAI(api_key=openai_api_key, temperature=0.5, model_name='gpt-3.5-turbo')
                     agent = create_pandas_dataframe_agent(llm, data, verbose=True, allow_dangerous_code=True)
-                    response = agent.run(user_prompt)
-                    st.write(response)
+                    response = agent.invoke(user_prompt)
+                    st.write(response["output"])
             else:
                 st.warning("⚠️ Please enter a prompt.")
         else:
