@@ -1,4 +1,5 @@
 import streamlit as st
+import openai
 from langchain_openai import ChatOpenAI
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 from models import *
@@ -8,6 +9,15 @@ import time
 
 def is_running():
     st.session_state.running = True
+
+def check_openai_api_key(api_key):
+    client = openai.OpenAI(api_key=api_key)
+    try:
+        client.models.list()
+    except openai.AuthenticationError:
+        return False
+    else:
+        return True
 
 def get_user_ticker():
     return st.text_input(
@@ -45,16 +55,20 @@ def explore_section(data):
 
     if generate_pressed:
         if openai_api_key:
-            if user_prompt.strip():
-                with st.spinner("Generating response...🤖"):
-                    llm = ChatOpenAI(api_key=openai_api_key, temperature=0.9, model_name='gpt-3.5-turbo')
-                    agent = create_pandas_dataframe_agent(llm, data, verbose=True, allow_dangerous_code=True)
-                    response = agent.invoke(user_prompt)
-                st.session_state.output_generate = response["output"]
-                st.session_state.output_warning = None
+            if check_openai_api_key(openai_api_key):
+                if user_prompt.strip():
+                    with st.spinner("Generating response...🤖"):
+                        llm = ChatOpenAI(api_key=openai_api_key, temperature=0.9, model_name='gpt-3.5-turbo')
+                        agent = create_pandas_dataframe_agent(llm, data, verbose=True, allow_dangerous_code=True)
+                        response = agent.invoke(user_prompt)
+                    st.session_state.output_generate = response["output"]
+                    st.session_state.output_warning = None
+                else:
+                    time.sleep(0.01)
+                    st.session_state.output_warning = "⚠️ Please enter a prompt."
             else:
                 time.sleep(0.01)
-                st.session_state.output_warning = "⚠️ Please enter a prompt."
+                st.session_state.output_warning = "⚠️ Invalid OpenAI API key. Please enter a valid key."
         else:
             time.sleep(0.01)
             st.session_state.output_warning = "⚠️ Please enter your OpenAI API key."
