@@ -13,7 +13,6 @@ def display_header():
         Predict assets like stocks, currencies, world indices, cryptocurrencies, and futures 
         using the Facebook Prophet model. A full list of these assets can be found [here](https://finance.yahoo.com/trending-tickers).
     """)
-    st.divider()
 
 def load_css(file_name):
     with open(file_name) as f:
@@ -22,5 +21,11 @@ def load_css(file_name):
 def initialize_session_state():
     if 'running' not in st.session_state:
         st.session_state.running = False
-    if 'predict_button' not in st.session_state:
-        st.session_state.predict_button = False
+    if "output_predict" not in st.session_state:
+        st.session_state.output_predict = None
+    if 'output_warning' not in st.session_state:
+        st.session_state.output_warning = None
+    if 'output_generate' not in st.session_state:
+        st.session_state.output_generate = None
+
+
