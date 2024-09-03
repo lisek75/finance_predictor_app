@@ -45,8 +45,6 @@ def validate_and_load_data(ticker):
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
             ticker_info = get_ticker_info(ticker)
             data = fetch_data(ticker, START, TODAY)
-            # Resample data to monthly frequency
-            data = data.resample('M', on='Date').mean()
             return ticker_info, data
     except Exception as e:
         st.error(f"❌ Error occurred: {e}")

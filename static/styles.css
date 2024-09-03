@@ -22,3 +22,11 @@
 div.row-widget.stRadio > div {
     flex-direction: row;
 }
+
+/* Styling for the tip box */
+.tip-box {
+    font-size: 16px;
+    color: gray;
+    text-align: center;
+    margin-top: 20px;
+}

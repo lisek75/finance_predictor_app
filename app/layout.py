@@ -4,7 +4,7 @@ def initialize_app():
     st.set_page_config(
         page_title="Finance Predictor App",
         page_icon="💶",
-        layout="wide",
+        # layout="wide",
         initial_sidebar_state="expanded"
     )
 

@@ -116,11 +116,14 @@ def forecast_section(data):
         st.altair_chart(forecast_fig, use_container_width=True)
 
 def interact(data):
+    # st.markdown("##### Please choose an action to proceed:")
+    
     # Radio button for selecting between 'Explore' and 'Forecast'
     section = st.radio(
-        r"$\textsf{\normalsize Choose\ an \ action:}$",
+        r"$\textsf{\normalsize Choose\ an\ action:\:}$",
         ("🔍 Explore", "🔮 Forecast"),
         disabled=st.session_state.running,
+
     )
 
     if section == "🔍 Explore":

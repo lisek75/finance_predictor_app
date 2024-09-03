@@ -9,19 +9,28 @@ def plot_data(data):
     """
     This function allows users to interactively choose which metrics 
     they want to visualize over time using Altair from a multiselect widget.
-    By default, all available metrics are selected and plotted.
     """
-
-    # Reset index for plotting purposes only
-    data.reset_index(inplace=True)
 
     # Allow users to select which columns to plot
     default_selection = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
     selected_columns = st.multiselect(
-        "Select columns to plot", options=default_selection, default=['Close']
+        r"$\textsf{\normalsize Select\ columns\ to\ plot:}$",
+        options=default_selection, 
+        default=['Close']
     )
-    # Add space
-    st.markdown("<br><br>", unsafe_allow_html=True) 
+
+
+    # Add instruction for interacting with the chart
+    st.markdown(
+        """
+        <div class="tip-box">
+            ℹ️ <i>Tip: Hover over the chart and click the full-screen icon (two arrows pointing outwards) to expand the chart to full screen. You can interact with the chart by dragging and clicking.</i>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+        # Add space
+    st.markdown("<br>", unsafe_allow_html=True) 
 
     if selected_columns:
         if len(selected_columns) == 1:
