@@ -21,7 +21,8 @@ def main():
         if data is not None:
             st.write(ticker_info)
             st.divider()
-            interaction(data)
+            # Explore data and predict
+            interact(data)
 
 
 if __name__ == "__main__":

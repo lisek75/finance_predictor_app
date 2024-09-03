@@ -18,7 +18,7 @@
 [data-testid="stExpander"] p {
     font-size: 16px;
 }
-/* Customize the radio button container to be in a row and centered */
+/* Customize the radio button container to be in a row */
 div.row-widget.stRadio > div {
     flex-direction: row;
 }

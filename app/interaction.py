@@ -31,7 +31,7 @@ def explore_section(data):
     st.write("#####")
     plot_data(data)
 
-    st.markdown("🤖 Using GPT-4 and LangChain/OpenAI, this AI can answer questions about price, volume, trends, and other financial metrics.")
+    st.markdown("🤖 Using LangChain and OpenAI (gpt-4o mini), this AI can answer questions about price, volume, trends, and other financial metrics  for the selected ticker.")
 
     openai_api_key = st.text_input(
         r"$\textsf{\normalsize Enter\ your\ OpenAI\ API:}$",
@@ -58,7 +58,7 @@ def explore_section(data):
             if check_openai_api_key(openai_api_key):
                 if user_prompt.strip():
                     with st.spinner("Generating response...🤖"):
-                        llm = ChatOpenAI(api_key=openai_api_key, temperature=0.9, model_name='gpt-3.5-turbo')
+                        llm = ChatOpenAI(api_key=openai_api_key, temperature=0.9, model_name='gpt-4o-mini')
                         agent = create_pandas_dataframe_agent(llm, data, verbose=True, allow_dangerous_code=True)
                         response = agent.invoke(user_prompt)
                     st.session_state.output_generate = response["output"]
@@ -68,7 +68,7 @@ def explore_section(data):
                     st.session_state.output_warning = "⚠️ Please enter a prompt."
             else:
                 time.sleep(0.01)
-                st.session_state.output_warning = "⚠️ Invalid OpenAI API key. Please enter a valid key."
+                st.session_state.output_warning = "⚠️ Please enter a valid OpenAI API key."
         else:
             time.sleep(0.01)
             st.session_state.output_warning = "⚠️ Please enter your OpenAI API key."
@@ -84,7 +84,7 @@ def explore_section(data):
 def forecast_section(data):
     st.write("#####")
     n_years = st.slider(
-        r"$\textsf{\small Years\ of\ prediction:}$", 
+        r"$\textsf{\normalsize Years\ of\ prediction:}$", 
         1, 4, disabled=st.session_state.running
     )
     period = n_years * 365
@@ -115,7 +115,7 @@ def forecast_section(data):
         st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
         st.altair_chart(forecast_fig, use_container_width=True)
 
-def interaction(data):
+def interact(data):
     # Radio button for selecting between 'Explore' and 'Forecast'
     section = st.radio(
         r"$\textsf{\normalsize Choose\ an \ action:}$",
