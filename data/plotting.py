@@ -6,10 +6,6 @@ from sklearn.linear_model import LinearRegression
 
 
 def plot_data(data):
-    """
-    This function allows users to interactively choose which metrics 
-    they want to visualize over time using Altair from a multiselect widget.
-    """
 
     # Allow users to select which columns to plot
     default_selection = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
@@ -24,7 +20,8 @@ def plot_data(data):
     st.markdown(
         """
         <div class="tip-box">
-            ℹ️ <i>Tip: Hover over the chart and click the full-screen icon (two arrows pointing outwards) to expand the chart to full screen. You can interact with the chart by dragging and clicking.</i>
+            ℹ️ <i>Tip: Hover over the chart and click on the expand icon to enlarge the chart to full screen. <br>
+            You can interact with the chart by dragging and clicking.</i>
         </div>
         """,
         unsafe_allow_html=True

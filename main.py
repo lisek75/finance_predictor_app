@@ -18,11 +18,13 @@ def main():
     if valid_ticker:
         # Validate the ticker and load the data
         ticker_info, data = validate_and_load_data(valid_ticker)
+
         if data is not None:
             st.write(ticker_info)
             st.divider()
-            # Explore data and predict
-            interact(data)
+
+            # Select action: Explore, Ask AI, or Forecast
+            action_selector(data)
 
 
 if __name__ == "__main__":
