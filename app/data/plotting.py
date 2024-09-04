@@ -15,18 +15,17 @@ def plot_data(data):
         default=['Close']
     )
 
-
     # Add instruction for interacting with the chart
     st.markdown(
         """
         <div class="tip-box">
-            ℹ️ <i>Tip: Hover over the chart and click on the expand icon to enlarge the chart to full screen. <br>
-            You can interact with the chart by dragging and clicking.</i>
+            ℹ️ <i>Tip: Hover over the chart and click the expand icon to view it in full screen..</i>
         </div>
         """,
         unsafe_allow_html=True
     )
-        # Add space
+
+    # Add space
     st.markdown("<br>", unsafe_allow_html=True) 
 
     if selected_columns:
@@ -50,7 +49,7 @@ def plot_data(data):
                 x=alt.X('Date:T', axis=alt.Axis(title='Date')),
                 y=alt.Y(f'{selected_columns[0]}:Q', axis=alt.Axis(title=selected_columns[0])),
                 tooltip=[alt.Tooltip('Date:T', title='Date'), alt.Tooltip(f'{selected_columns[0]}:Q', title=selected_columns[0], format='.2f')]
-            ).interactive()
+            )
 
             trend_line = alt.Chart(trend_df).mark_line(color='red', strokeWidth=2).encode(
                 x=alt.X('Date:T'),
@@ -69,7 +68,7 @@ def plot_data(data):
                 y=alt.Y('Value:Q', axis=alt.Axis(title='Value')),
                 color='Metric:N',  # Color the lines by metric (Open, Close, etc.)
                 tooltip=[alt.Tooltip('Date:T', title='Date'), alt.Tooltip('Value:Q', title='Value', format='.2f')]
-            ).interactive()
+            )
 
             st.altair_chart(chart, use_container_width=True)
     else:

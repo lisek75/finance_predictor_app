@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 from langchain_openai import ChatOpenAI
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
-from models import *
+from ..models import *
 import time 
 
 def is_running():

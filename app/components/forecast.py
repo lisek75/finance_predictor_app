@@ -1,5 +1,5 @@
 import streamlit as st
-from models import *
+from ..models import *
 
 def is_running():
     st.session_state.running = True

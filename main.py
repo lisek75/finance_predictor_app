@@ -1,12 +1,13 @@
-from app import *
-from data import process_user_input, validate_and_load_data
+from app.components import *
+from app.data import *
+from app.models import *
 import streamlit as st
 
 def main():
     # Initialize the Streamlit app and settings
     initialize_app()
     display_header()
-    load_css("static/styles.css")
+    load_css("app/static/styles.css")
     initialize_session_state()
 
     # Get user input for the ticker symbol

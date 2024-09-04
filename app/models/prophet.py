@@ -3,6 +3,7 @@ from prophet.diagnostics import cross_validation
 import warnings
 import altair as alt
 
+
 def fit_prophet_model(data, period):
     """
     Fit a Prophet model to the provided data and forecast for the given period.

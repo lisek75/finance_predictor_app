@@ -1,4 +1,4 @@
-from data import plot_data
+from ..data import plot_data
 import streamlit as st
 
 def explore_section(data):

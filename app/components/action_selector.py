@@ -1,7 +1,7 @@
 import streamlit as st
-from app.explore import explore_section
-from app.forecast import forecast_section
-from app.ask_ai import ask_ai_section
+from app.components.explore import explore_section
+from app.components.forecast import forecast_section
+from app.components.ask_ai import ask_ai_section
 
 def action_selector(data):
     st.markdown("##### Please choose an action to proceed:")
