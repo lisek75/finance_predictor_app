@@ -20,9 +20,8 @@ def main():
         st.write(get_ticker_name(valid_ticker))
         data = load_data(valid_ticker)
         st.divider()
-
         # Select action: Explore, Ask AI, or Forecast
-        action_selector(data)
+        action_selector(data, valid_ticker)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from app.components.explore import explore_section
 from app.components.forecast import forecast_section
 from app.components.ask_ai import ask_ai_section
 
-def action_selector(data):
+def action_selector(data, ticker):
     st.markdown("##### Please choose an action to proceed:")
 
     selected_action = None
@@ -29,7 +29,7 @@ def action_selector(data):
     if "selected_section" in st.session_state:
         section = st.session_state.selected_section
         if section == "🔍 Explore":
-            explore_section(data)
+            explore_section(data, ticker)
         elif section == "🤖 Ask AI":
             ask_ai_section(data)
         elif section == "🔮 Forecast":
