@@ -29,7 +29,8 @@ def fit_prophet_model(data, period):
 
 def cross_validate_model(m, initial='730 days', period='180 days', horizon='365 days'):
     """
-    Perform cross-validation on the provided Prophet model.
+    Cross-validation evaluates a model's performance and stability 
+    across different data subsets to ensure robust predictions.
 
     Args:
         m (Prophet): Fitted Prophet model.

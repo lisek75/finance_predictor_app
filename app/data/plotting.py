@@ -19,7 +19,7 @@ def plot_data(data):
     st.markdown(
         """
         <div class="tip-box">
-            ℹ️ <i>Tip: Hover over the chart and click the expand icon to view it in full screen..</i>
+            ℹ️ <i>Tip: Hover over the chart and click the expand icon to view it in full screen.</i>
         </div>
         """,
         unsafe_allow_html=True

@@ -24,16 +24,43 @@ def forecast_section(data):
 
         with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
             df_cv = cross_validate_model(m)
-        global_mape = mean_absolute_percentage_error(df_cv['y'], df_cv['yhat'])
-        m_accuracy = 100 - global_mape
+
+        metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
+
+        # Calculate model accuracy
+        global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value']
+        m_accuracy = 100 - float(global_mape.strip('%')) 
 
         forecast_fig = plot_forecast(m, forecast)
 
-        st.session_state.output_predict = (forecast_fig, m_accuracy)
+        st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df)
         st.session_state.running = False
         st.rerun()
 
     if "output_predict" in st.session_state and st.session_state.output_predict:
-        forecast_fig, m_accuracy = st.session_state.output_predict
+        forecast_fig, m_accuracy, metrics_df = st.session_state.output_predict
+
+        st.write('#####')
         st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
         st.altair_chart(forecast_fig, use_container_width=True)
+        st.write("**Metrics**")
+        st.dataframe(metrics_df, width=800)
+
+        with st.expander("Metric Definitions"):
+            st.markdown("""
+            - **MAPE**: Mean Absolute Percentage Error<br>
+                - Measures how far off the model's predictions are from the actual values, expressed as a percentage.<br>
+                - For example, a MAPE of 16% means the model's predictions are off by an average of 16% from the actual values.<br>
+                - Lower MAPE values indicate better model accuracy.
+            <br><br>
+            - **MSE**: Mean Squared Error<br>
+                - Measures the average squared difference between predicted and actual values.<br>
+                - Lower MSE indicates better model performance.
+            <br><br>
+            - **RMSE**: Root Mean Squared Error<br>
+                - Measures the square root of the average squared differences between predictions and actual values.<br>
+                - Gives an error metric in the same units as the data.<br>
+                - Lower RMSE means better accuracy.
+            """, unsafe_allow_html=True)
+
+
