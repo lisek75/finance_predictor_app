@@ -14,11 +14,11 @@ def action_selector(data):
     with col1:
         if st.button("🔍 Explore", disabled=st.session_state.running):
             selected_action = "🔍 Explore"
-    
+
     with col2:
         if st.button("🤖 Ask AI", disabled=st.session_state.running):
             selected_action = "🤖 Ask AI"
-    
+
     with col3:
         if st.button("🔮 Forecast", disabled=st.session_state.running):
             selected_action = "🔮 Forecast"
