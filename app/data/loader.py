@@ -75,16 +75,16 @@ def get_ticker_info(ticker):
         stock_data = {
             "Stock Info": ["Company Name", "Country", "Sector", "Industry", "Market Cap", "Enterprise Value", "Beta", "Shares Outstanding", "Revenue (TTM)", "Employees"],
             "Value": [
-                stock_info.get("longName", "N/A"),
-                stock_info.get("country", "N/A"),
-                stock_info.get("sector", "N/A"),
-                stock_info.get("industry", "N/A"),
+                str(stock_info.get("longName", "N/A")),
+                str(stock_info.get("country", "N/A")),
+                str(stock_info.get("sector", "N/A")),
+                str(stock_info.get("industry", "N/A")),
                 f"${round(stock_info.get('marketCap', 0) / 1e9, 1)}T" if stock_info.get("marketCap") else "N/A",
                 f"${round(stock_info.get('enterpriseValue', 0) / 1e9, 1)}T" if stock_info.get("enterpriseValue") else "N/A",
-                stock_info.get('beta', 'N/A'),
-                stock_info.get('sharesOutstanding', 'N/A'),
+                str(stock_info.get('beta', 'N/A')),
+                str(stock_info.get('sharesOutstanding', 'N/A')),
                 f"${round(stock_info.get('totalRevenue', 0) / 1e9, 2)}B" if stock_info.get('totalRevenue') else "N/A",  # Revenue in billions
-                stock_info.get("fullTimeEmployees", "N/A")
+                str(stock_info.get("fullTimeEmployees", "N/A"))
             ]
         }
         stock_info_df = pd.DataFrame(stock_data)
@@ -93,14 +93,14 @@ def get_ticker_info(ticker):
         price_data = {
             "Price Info": ["Current Price", "Previous Close", "Day High", "Day Low", "52 Week High", "52 Week Low", "Volume (10-Day Avg)", "P/S Ratio"],
             "Value": [
-                f"${stock_info.get('currentPrice', 'N/A')}",
-                f"${stock_info.get('previousClose', 'N/A')}",
-                f"${stock_info.get('dayHigh', 'N/A')}",
-                f"${stock_info.get('dayLow', 'N/A')}",
-                f"${stock_info.get('fiftyTwoWeekHigh', 'N/A')}",
-                f"${stock_info.get('fiftyTwoWeekLow', 'N/A')}",
-                stock_info.get('averageVolume10days', 'N/A'),
-                round(stock_info.get('priceToSalesTrailing12Months', 'N/A'), 2) if stock_info.get('priceToSalesTrailing12Months') else "N/A"
+                f"${stock_info.get('currentPrice', 'N/A')}" if stock_info.get('currentPrice') is not None else "N/A",
+                f"${stock_info.get('previousClose', 'N/A')}" if stock_info.get('previousClose') is not None else "N/A",
+                f"${stock_info.get('dayHigh', 'N/A')}" if stock_info.get('dayHigh') is not None else "N/A",
+                f"${stock_info.get('dayLow', 'N/A')}" if stock_info.get('dayLow') is not None else "N/A",
+                f"${stock_info.get('fiftyTwoWeekHigh', 'N/A')}" if stock_info.get('fiftyTwoWeekHigh') is not None else "N/A",
+                f"${stock_info.get('fiftyTwoWeekLow', 'N/A')}" if stock_info.get('fiftyTwoWeekLow') is not None else "N/A",
+                str(stock_info.get('averageVolume10days', 'N/A')) if stock_info.get('averageVolume10days') is not None else "N/A",
+                str(round(stock_info.get('priceToSalesTrailing12Months', 0), 2)) if stock_info.get('priceToSalesTrailing12Months') is not None else "N/A"
             ]
         }
         price_info_df = pd.DataFrame(price_data)
@@ -109,16 +109,16 @@ def get_ticker_info(ticker):
         business_data = {
             "Business Metrics": ["EPS (FWD)", "P/E (FWD)", "PEG Ratio", "Div Rate (FWD)", "Div Yield (FWD)", "EBITDA", "Free Cash Flow", "Return on Equity (ROE)", "Gross Profit Margin", "Recommendation"],
             "Value": [
-                stock_info.get('forwardEps', 'N/A'),
-                stock_info.get('forwardPE', 'N/A'),
-                stock_info.get('pegRatio', 'N/A'),
-                f"${stock_info.get('dividendRate', 'N/A')}" if stock_info.get('dividendRate') else "N/A",
-                f"{round(stock_info.get('dividendYield', 0) * 100, 2)}%" if stock_info.get('dividendYield') else "N/A",
-                f"${round(stock_info.get('ebitda', 0) / 1e9, 2)}B" if stock_info.get('ebitda') else "N/A",
-                f"${round(stock_info.get('freeCashflow', 0) / 1e9, 2)}B" if stock_info.get('freeCashflow') else "N/A",  # FCF in billions
-                f"{round(stock_info.get('returnOnEquity', 0) * 100, 2)}%" if stock_info.get('returnOnEquity') else "N/A",
-                f"{round(stock_info.get('grossMargins', 0) * 100, 2)}%" if stock_info.get('grossMargins') else "N/A",
-                stock_info.get('recommendationKey', 'N/A').capitalize()
+                str(stock_info.get('forwardEps', 'N/A')) if stock_info.get('forwardEps') is not None else "N/A",
+                str(stock_info.get('forwardPE', 'N/A')) if stock_info.get('forwardPE') is not None else "N/A",
+                str(stock_info.get('pegRatio', 'N/A')) if stock_info.get('pegRatio') is not None else "N/A",
+                f"${stock_info.get('dividendRate', 'N/A')}" if stock_info.get('dividendRate') is not None else "N/A",
+                f"{round(stock_info.get('dividendYield', 0) * 100, 2)}%" if stock_info.get('dividendYield') is not None else "N/A",
+                f"${round(stock_info.get('ebitda', 0) / 1e9, 2)}B" if stock_info.get('ebitda') is not None else "N/A",
+                f"${round(stock_info.get('freeCashflow', 0) / 1e9, 2)}B" if stock_info.get('freeCashflow') is not None else "N/A",  # FCF in billions
+                f"{round(stock_info.get('returnOnEquity', 0) * 100, 2)}%" if stock_info.get('returnOnEquity') is not None else "N/A",
+                f"{round(stock_info.get('grossMargins', 0) * 100, 2)}%" if stock_info.get('grossMargins') is not None else "N/A",
+                str(stock_info.get('recommendationKey', 'N/A').capitalize()) if stock_info.get('recommendationKey') else "N/A"
             ]
         }
         business_info_df = pd.DataFrame(business_data)
