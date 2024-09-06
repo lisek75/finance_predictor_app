@@ -1,7 +1,8 @@
 from prophet import Prophet
 from prophet.diagnostics import cross_validation
 import warnings
-import altair as alt
+import plotly.graph_objects as go
+import streamlit as st
 
 
 def fit_prophet_model(data, period):
@@ -50,83 +51,88 @@ def cross_validate_model(m, initial='730 days', period='180 days', horizon='365 
         print(f"Error during cross-validation: {e}")
         return None
 
+
 def plot_forecast(m, forecast):
     """
-    Plot the forecast using Altair.
+    Plot the forecast using Plotly.
 
     Args:
         m (Prophet): Fitted Prophet model.
         forecast (pd.DataFrame): Forecasted values.
 
     Returns:
-        chart (alt.Chart): Altair chart object.
+        fig (go.Figure): Plotly figure object.
     """
     try:
+        # Common style dictionary for fonts
+        common_font_style = dict(size=14, color='#ffffff')
+
         # Get the historical data
         df = m.history.copy()
 
-        # Create a color scale for the legend
-        color_scale = alt.Scale(
-            domain=['Actual', 'Predicted', 'Uncertainty'],
-            range=['black', '#4494be', '#FFB6C1']
-        )
+        # Create figure
+        fig = go.Figure()
 
         # Actual data points
-        actual = alt.Chart(df).mark_point(size=5).encode(
-            x=alt.X('ds:T', axis=alt.Axis(title='date', tickCount="year")),
-            y=alt.Y('y:Q', title='forecast'),
-            tooltip=[alt.Tooltip('ds:T', title='Date'), alt.Tooltip('y:Q', title='Actual Value', format='.2f')],
-            color=alt.value('black')
-        ).transform_calculate(
-            legend_label='"Actual"'
-        ).encode(
-            color=alt.Color('legend_label:N', scale=color_scale)
-        )
+        fig.add_trace(go.Scatter(
+            x=df['ds'], 
+            y=df['y'], 
+            mode='markers',
+            name='Actual',
+            marker=dict(color='#FFFF00', size=3),
+            hovertemplate='Actual: %{y:.2f}<extra></extra>' 
+        ))
 
         # Forecast line
-        forecast_line = alt.Chart(forecast).mark_line(strokeWidth=3).encode(
-            x='ds:T',
-            y='yhat:Q',
-            tooltip=[alt.Tooltip('ds:T', title='Date'), alt.Tooltip('yhat:Q', title='Predicted Value', format='.2f')],
-            color=alt.value('#4494be')
-        ).transform_calculate(
-            legend_label='"Predicted"'
-        ).encode(
-            color=alt.Color('legend_label:N', scale=color_scale)
+        fig.add_trace(go.Scatter(
+            x=forecast['ds'], 
+            y=forecast['yhat'], 
+            mode='lines',
+            name='Predicted',
+            line=dict(color='#ffffff', width=3),
+            hovertemplate='Predicted: %{y:.2f}<extra></extra>'
+        ))
+
+        # Uncertainty interval (shaded area)
+        fig.add_trace(go.Scatter(
+            x=forecast['ds'], 
+            y=forecast['yhat_upper'],
+            fill=None,
+            mode='lines',
+            line=dict(width=0),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=forecast['ds'], 
+            y=forecast['yhat_lower'],
+            fill='tonexty',
+            mode='lines',
+            line=dict(width=0),
+            fillcolor='rgba(255, 182, 193, 0.4)', 
+            name='Uncertainty',
+            hoverinfo='skip'  # Skip hover info for this trace
+        ))
+
+        # Customize layout
+        fig.update_layout(
+            xaxis_title='Date',
+            yaxis_title='Value',
+            margin=dict(t=20, b=0, l=0, r=0),
+            font=common_font_style,  # Apply the common font to the whole chart
+            hovermode='x',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=1,
+                xanchor='center',
+                x=0.5,
+                font=common_font_style  # Use the same common font style for the legend
+            )
         )
 
-        # Uncertainty interval
-        uncertainty = alt.Chart(forecast).mark_area(opacity=0.3).encode(
-            x='ds:T',
-            y='yhat_lower:Q',
-            y2='yhat_upper:Q',
-            tooltip=[alt.Tooltip('ds:T', title='Date'), alt.Tooltip('yhat_lower:Q', title='Lower Bound'), alt.Tooltip('yhat_upper:Q', title='Upper Bound')],
-            color=alt.value('#FFB6C1')
-        ).transform_calculate(
-            legend_label='"Uncertainty"'
-        ).encode(
-            color=alt.Color('legend_label:N', scale=color_scale)
-        )
-
-        # Combine the layers
-        chart = alt.layer(
-            uncertainty,
-            forecast_line,
-            actual
-        ).properties(
-            width=800,
-            height=400
-        ).configure_legend(
-            title=None,
-            orient='bottom',
-            direction='vertical',
-            strokeColor='gray',
-            fillColor='#EEEEEE',
-            padding=10,
-            cornerRadius=10,
-        ).interactive()
-
-        return chart
+        return fig
     except Exception as e:
-        print(f"Error plotting forecast: {e}")
+        st.error(f"Error plotting forecast: {e}")
         return None

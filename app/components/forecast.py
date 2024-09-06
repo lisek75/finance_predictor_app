@@ -32,7 +32,7 @@ def forecast_section(data):
         m_accuracy = 100 - float(global_mape.strip('%')) 
 
         forecast_fig = plot_forecast(m, forecast)
-
+        
         st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df)
         st.session_state.running = False
         st.rerun()
@@ -42,7 +42,8 @@ def forecast_section(data):
 
         st.write('#####')
         st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
-        st.altair_chart(forecast_fig, use_container_width=True)
+        # st.altair_chart(forecast_fig, use_container_width=True)
+        st.plotly_chart(forecast_fig, use_container_width=True)
         st.write("**Metrics**")
         st.dataframe(metrics_df, width=800)
 

@@ -1,7 +1,10 @@
 [theme]
-primaryColor = "#1f77b4"
-backgroundColor = "#F0F0F0"
-secondaryBackgroundColor = "#E0E0E0"
-textColor = "#333333"
+primaryColor = "#d33682"
+backgroundColor = "#000033"
+secondaryBackgroundColor = "#586e75"
+textColor = "#fafafa"
 font = "sans serif"
+
+[logger]
+level = "error"
 
