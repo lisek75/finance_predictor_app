@@ -1,4 +1,5 @@
 import streamlit as st
+from ..data import get_user_ticker, validate_input
 
 def initialize_app():
     """
@@ -14,11 +15,17 @@ def display_header():
     """
     Display the main header and description of the app with a brief introduction to its functionality.
     """
-    st.title("💶 Finance Predictor App")  # Display the app title
+      # Display the app title
+    st.title("💶 Finance Predictor App")
+
+    # Description of the app's purpose
     st.write("""
-        Predict assets like stocks, currencies, world indices, cryptocurrencies, and futures 
-        using the Facebook Prophet model. A full list of these assets can be found [here](https://finance.yahoo.com/trending-tickers).
-    """)  # Description of the app's purpose
+        Predict asset prices (stocks, currencies, cryptocurrencies, etc.) using time series machine learning models.
+    """)  
+    st.write("""
+        👈 Enter a ticker symbol to get started. Find a list of tickers [here](https://finance.yahoo.com/trending-tickers).
+    """)
+    st.divider()
 
 def load_css(file_name):
     """
@@ -31,10 +38,16 @@ def load_css(file_name):
         # Inject custom CSS styles into the app
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+
 def initialize_session_state():
     """
     Initialize the session state variables used in the app to keep track of the app's running state and outputs.
     """
+
+    # Initialize previous_ticker to track ticker changes
+    if 'previous_ticker' not in st.session_state:
+        st.session_state.previous_ticker = ''
+
     # Initialize a flag to indicate if the app is currently processing or running
     if 'running' not in st.session_state:
         st.session_state.running = False
@@ -43,7 +56,7 @@ def initialize_session_state():
     if "output_predict" not in st.session_state:
         st.session_state.output_predict = None
 
-    # Initialize a variable to hold warnings for user input
+    # Initialize a variable to hold warnings for user input (AI)
     if 'output_warning' not in st.session_state:
         st.session_state.output_warning = None
 

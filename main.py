@@ -31,13 +31,10 @@ def main():
     # If the ticker is valid, proceed with data loading and action selection
     if valid_ticker is not None:
         # Display the long name (company name) for the valid ticker
-        st.write(get_ticker_name(valid_ticker))
+        st.sidebar.write(get_ticker_name(valid_ticker))
 
         # Load the historical financial data for the ticker
         data = load_data(valid_ticker)
-
-        # Add a visual divider for better UI structure
-        st.divider()
 
         # Allow the user to choose between exploring data, asking AI, or forecasting
         action_selector(data, valid_ticker)

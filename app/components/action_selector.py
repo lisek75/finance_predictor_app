@@ -12,14 +12,15 @@ def action_selector(data, ticker):
         data (pd.DataFrame): DataFrame containing the data to be used in each section.
         ticker (str): The ticker symbol of the stock or asset being analyzed.
     """
+    st.sidebar.divider()
 
     # Header to instruct the user to choose an action
-    st.markdown("##### Please choose an action to proceed:")
+    st.sidebar.write ("😊 What would you like to do next?")
 
     selected_action = None # Initialize the selected action variable
 
     # Create three columns for the action buttons
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.sidebar.columns(3)
 
     # First column: Button to explore data
     with col1:
@@ -28,7 +29,7 @@ def action_selector(data, ticker):
 
     # Second column: Button to ask AI for insights
     with col2:
-        if st.button("🤖 Ask AI", disabled=st.session_state.running):
+        if st.button("🤖\n\nAsk AI", disabled=st.session_state.running):
             selected_action = "🤖 Ask AI"
 
     # Third column: Button to forecast data
@@ -46,6 +47,6 @@ def action_selector(data, ticker):
         if section == "🔍 Explore":
             explore_section(data, ticker)
         elif section == "🤖 Ask AI":
-            ask_ai_section(data)
+            ask_ai_section(data, ticker)
         elif section == "🔮 Forecast":
-            forecast_section(data)
+            forecast_section(data, ticker)

@@ -16,12 +16,28 @@ def get_user_ticker():
     Returns:
         str: The entered ticker symbol in uppercase.
     """
-    return st.text_input(
-        r"$\textsf{\normalsize Enter\ a\ ticker\ }$",
+    
+    # Get the current ticker input
+    new_ticker = st.sidebar.text_input(
+        r"$\textsf{\normalsize Enter\ a\ ticker:\ }$",
         label_visibility="visible",
         disabled=st.session_state.running,
         placeholder="e.g. AAPL, BTC=F, EURUSD=X"
     ).upper()
+
+    # Check if the ticker has changed
+    if 'previous_ticker' in st.session_state and st.session_state.previous_ticker != new_ticker:
+        # Reset data and predictions if the ticker has changed
+        st.session_state.output_predict = None
+        st.session_state.output_warning = None
+        st.session_state.output_generate = None
+        st.session_state.running = False
+
+    # Store the new ticker in session state
+    st.session_state.previous_ticker = new_ticker
+
+    return new_ticker
+
 
 
 def validate_input(user_ticker_input):
@@ -40,7 +56,7 @@ def validate_input(user_ticker_input):
         # Step 1: Ensure only one ticker is provided
         tickers = re.split(r'\s+', user_ticker_input.strip())
         if len(tickers) != 1:
-            st.error("❌ Please provide only one ticker. You can find a full list of tickers [here](https://finance.yahoo.com/trending-tickers). 🧐")
+            st.sidebar.error("❌ Please provide only one ticker.")
             return None
 
         ticker = tickers[0].upper()
@@ -49,10 +65,10 @@ def validate_input(user_ticker_input):
         try:
             validation_data = yf.download(ticker, period="1d")
             if validation_data.empty:
-                st.error("❌ Invalid ticker provided. Please try again.")
+                st.sidebar.error("❌ Invalid ticker provided.")
                 return None
         except Exception as e:
-            st.error(f"❌ Error occurred during validation: {e}")
+            st.sidebar.error(f"❌ Error occurred during validation: {e}")
             return None
 
         # Return the valid ticker if all checks pass
@@ -79,8 +95,6 @@ def load_data(ticker):
     except Exception as e:
         st.error(f"❌ Error occurred while fetching data: {e}")
         return None
-
-
 
 def get_ticker_name(ticker):
     """

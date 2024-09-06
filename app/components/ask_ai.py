@@ -17,8 +17,8 @@ def check_openai_api_key(api_key):
     else:
         return True
 
-def ask_ai_section(data):
-    st.write("#####")
+def ask_ai_section(data, ticker):
+    st.markdown(f"<h2 style='text-align: center;'>🤖 Ask AI about {ticker}</h2>", unsafe_allow_html=True)
     st.markdown("🤖 Using LangChain and OpenAI (gpt-4o mini), this AI can answer questions about price, volume, trends, and other financial metrics  for the selected ticker.")
 
     openai_api_key = st.text_input(

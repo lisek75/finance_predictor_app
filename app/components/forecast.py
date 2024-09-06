@@ -5,7 +5,7 @@ from .utils import *
 def is_running():
     st.session_state.running = True
 
-def forecast_section(data):
+def forecast_section(data, ticker):
     """
     Fit a Prophet model to the provided data and forecast for the given period.
 
@@ -18,10 +18,10 @@ def forecast_section(data):
         - Displays model accuracy and relevant performance metrics.
     """
 
-    st.write("#####")
+    st.sidebar.write("####")
 
     # Slider to allow the user to select the number of years for prediction
-    n_years = st.slider(
+    n_years = st.sidebar.slider(
         r"$\textsf{\normalsize Years\ of\ prediction:}$", 
         1, 4, disabled=st.session_state.running
     )
@@ -30,7 +30,7 @@ def forecast_section(data):
     period = n_years * 365
 
     # Button to trigger the prediction process
-    predict_pressed = st.button(
+    predict_pressed = st.sidebar.button(
         "Predict",
         disabled=st.session_state.running,
         on_click=is_running, key='predict_button'
@@ -65,13 +65,15 @@ def forecast_section(data):
         # Retrieve the stored forecast results
         forecast_fig, m_accuracy, metrics_df, forecast, data = st.session_state.output_predict
 
-        st.write('#####')
+        st.markdown(f"<h2 style='text-align: center;'>🔮 Forecast Data for {ticker}</h2>", unsafe_allow_html=True)
 
         # Display the forecasted data
         display_data(data, forecast, "forecast")
 
+        st.write('######')
+
         # Display the model accuracy
-        st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
+        st.markdown(f"<h5 class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</h5>", unsafe_allow_html=True)
 
         # Tip for interacting with the chart
         st.markdown(
@@ -104,7 +106,6 @@ def forecast_section(data):
             <br><br>
             - **RMSE**: Root Mean Squared Error<br>
                 - Measures the square root of the average squared differences between predictions and actual values.<br>
-                - Gives an error metric in the same units as the data.<br>
                 - Lower RMSE means better accuracy.
             """, unsafe_allow_html=True)
 
