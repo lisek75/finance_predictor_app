@@ -54,9 +54,9 @@ def forecast_section(data):
                 - For example, a MAPE of 16% means the model's predictions are off by an average of 16% from the actual values.<br>
                 - Lower MAPE values indicate better model accuracy.
             <br><br>
-            - **MSE**: Mean Squared Error<br>
-                - Measures the average squared difference between predicted and actual values.<br>
-                - Lower MSE indicates better model performance.
+            - **MAE**: Mean Absolute Error<br>
+                - Measures the average absolute difference between predicted and actual values.<br>
+                - Lower MAE indicates better model performance.
             <br><br>
             - **RMSE**: Root Mean Squared Error<br>
                 - Measures the square root of the average squared differences between predictions and actual values.<br>
