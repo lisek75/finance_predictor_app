@@ -1,5 +1,6 @@
 import streamlit as st
 from ..models import *
+from .utils import *
 
 def is_running():
     st.session_state.running = True
@@ -32,21 +33,30 @@ def forecast_section(data):
         m_accuracy = 100 - float(global_mape.strip('%')) 
 
         forecast_fig = plot_forecast(m, forecast)
-        
-        st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df)
+
+        st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
         st.session_state.running = False
         st.rerun()
 
     if "output_predict" in st.session_state and st.session_state.output_predict:
-        forecast_fig, m_accuracy, metrics_df = st.session_state.output_predict
+        forecast_fig, m_accuracy, metrics_df, forecast, data = st.session_state.output_predict
 
         st.write('#####')
         st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
-        # st.altair_chart(forecast_fig, use_container_width=True)
-        st.plotly_chart(forecast_fig, use_container_width=True)
-        st.write("**Metrics**")
-        st.dataframe(metrics_df, width=800)
 
+        # Add instruction for interacting with the chart
+        st.markdown(
+            """
+            <div class="tip-box">
+                ℹ️ <i>Tip: Hover over the chart and click the box icon to view it in full screen.</i>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.write('#####')
+        st.plotly_chart(forecast_fig, use_container_width=True)
+
+        st.write("**Metrics**")
         with st.expander("Metric Definitions"):
             st.markdown("""
             - **MAPE**: Mean Absolute Percentage Error<br>
@@ -63,5 +73,8 @@ def forecast_section(data):
                 - Gives an error metric in the same units as the data.<br>
                 - Lower RMSE means better accuracy.
             """, unsafe_allow_html=True)
+        st.dataframe(metrics_df, width=800)
+
+        display_data(data, forecast, "forecast")
 
 

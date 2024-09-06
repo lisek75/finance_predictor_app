@@ -1,4 +1,5 @@
 from ..data import plot_data, get_ticker_info
+from .utils import *
 import streamlit as st
 
 def explore_section(data, ticker):
@@ -7,5 +8,7 @@ def explore_section(data, ticker):
     st.dataframe(stock_info_df.set_index(stock_info_df.columns[0]), width=800)
     st.dataframe(price_info_df.set_index(price_info_df.columns[0]), width=800)
     st.dataframe(business_info_df.set_index(business_info_df.columns[0]), width=800)
+    st.write("#####")
+    display_data(data, data, "historical")
     st.write("#####")
     plot_data(data)
