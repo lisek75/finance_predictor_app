@@ -6,6 +6,7 @@ import streamlit as st
 
 
 def fit_prophet_model(data, period):
+    print(period)
     """
     Fit a Prophet model to the provided data and forecast for the given period.
 
@@ -63,6 +64,7 @@ def plot_forecast(m, forecast):
     Returns:
         fig (go.Figure): Plotly figure object.
     """
+
     try:
         # Common style dictionary for fonts
         common_font_style = dict(size=14, color='#ffffff')
@@ -77,9 +79,9 @@ def plot_forecast(m, forecast):
         fig.add_trace(go.Scatter(
             x=df['ds'], 
             y=df['y'], 
-            mode='markers',
+            mode='lines',
             name='Actual',
-            marker=dict(color='#FFFF00', size=3),
+            marker=dict(color='#87CEEB', size=3),
             hovertemplate='Actual: %{y:.2f}<extra></extra>' 
         ))
 
@@ -89,30 +91,8 @@ def plot_forecast(m, forecast):
             y=forecast['yhat'], 
             mode='lines',
             name='Predicted',
-            line=dict(color='#ffffff', width=3),
+            line=dict(color='#FF0000', width=6),
             hovertemplate='Predicted: %{y:.2f}<extra></extra>'
-        ))
-
-        # Uncertainty interval (shaded area)
-        fig.add_trace(go.Scatter(
-            x=forecast['ds'], 
-            y=forecast['yhat_upper'],
-            fill=None,
-            mode='lines',
-            line=dict(width=0),
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=forecast['ds'], 
-            y=forecast['yhat_lower'],
-            fill='tonexty',
-            mode='lines',
-            line=dict(width=0),
-            fillcolor='rgba(255, 182, 193, 0.4)', 
-            name='Uncertainty',
-            hoverinfo='skip'  # Skip hover info for this trace
         ))
 
         # Customize layout
