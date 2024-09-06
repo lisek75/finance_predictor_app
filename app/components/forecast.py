@@ -6,13 +6,30 @@ def is_running():
     st.session_state.running = True
 
 def forecast_section(data):
+    """
+    Fit a Prophet model to the provided data and forecast for the given period.
+
+    Args:
+        data (pd.DataFrame): DataFrame with historical data for the ticker, including 'Date' and 'Close'.
+
+    Functionality:
+        - Allows the user to set a prediction period in years.
+        - Fits a Prophet model and returns forecasted data.
+        - Displays model accuracy and relevant performance metrics.
+    """
+
     st.write("#####")
+
+    # Slider to allow the user to select the number of years for prediction
     n_years = st.slider(
         r"$\textsf{\normalsize Years\ of\ prediction:}$", 
         1, 4, disabled=st.session_state.running
     )
+
+    # Calculate the forecast period in days
     period = n_years * 365
 
+    # Button to trigger the prediction process
     predict_pressed = st.button(
         "Predict",
         disabled=st.session_state.running,
@@ -20,31 +37,43 @@ def forecast_section(data):
     )
 
     if predict_pressed:
+        # Display a loading spinner while fitting the model
         with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
-            m, forecast = fit_prophet_model(data, period)
+            m, forecast = fit_prophet_model(data, period) # Fit the Prophet model
 
+        # Display a spinner while performing cross-validation
         with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-            df_cv = cross_validate_model(m)
+            df_cv = cross_validate_model(m) # Cross-validate the model
 
+        # Calculate model performance metrics
         metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
 
-        # Calculate model accuracy
+        # Extract and calculate the model accuracy from MAPE
         global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value']
         m_accuracy = 100 - float(global_mape.strip('%')) 
 
+        # Generate the forecast plot
         forecast_fig = plot_forecast(m, forecast)
 
+        # Store the results in session state to display later
         st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
         st.session_state.running = False
-        st.rerun()
+        st.rerun() # Refresh the page to update the displayed results
 
+    # Check if the forecast results are stored in session state
     if "output_predict" in st.session_state and st.session_state.output_predict:
+        # Retrieve the stored forecast results
         forecast_fig, m_accuracy, metrics_df, forecast, data = st.session_state.output_predict
 
         st.write('#####')
+
+        # Display the forecasted data
+        display_data(data, forecast, "forecast")
+
+        # Display the model accuracy
         st.markdown(f"<p class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</p>", unsafe_allow_html=True)
 
-        # Add instruction for interacting with the chart
+        # Tip for interacting with the chart
         st.markdown(
             """
             <div class="tip-box">
@@ -53,10 +82,15 @@ def forecast_section(data):
             """,
             unsafe_allow_html=True
         )
+
         st.write('#####')
+
+        # Display the forecast plot
         st.plotly_chart(forecast_fig, use_container_width=True)
 
         st.write("**Metrics**")
+
+        # Expandable section for showing metric definitions
         with st.expander("Metric Definitions"):
             st.markdown("""
             - **MAPE**: Mean Absolute Percentage Error<br>
@@ -73,8 +107,10 @@ def forecast_section(data):
                 - Gives an error metric in the same units as the data.<br>
                 - Lower RMSE means better accuracy.
             """, unsafe_allow_html=True)
+
+        # Display the metrics DataFrame
         st.dataframe(metrics_df, width=800)
 
-        display_data(data, forecast, "forecast")
+
 
 

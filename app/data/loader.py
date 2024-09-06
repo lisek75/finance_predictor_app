@@ -5,11 +5,17 @@ from datetime import date
 import re
 
 # Define constants for start and end dates
-START = "2018-01-01"
-TODAY = date.today().strftime("%Y-%m-%d")
+START = "2018-01-01" # Start date for fetching historical data
+TODAY = date.today().strftime("%Y-%m-%d")  # Today's date for fetching up-to-date data
 
-# Function to get the ticker input from the user.
+
 def get_user_ticker():
+    """
+    Prompt the user to enter a valid ticker symbol (e.g., AAPL, BTC=F, EURUSD=X).
+    
+    Returns:
+        str: The entered ticker symbol in uppercase.
+    """
     return st.text_input(
         r"$\textsf{\normalsize Enter\ a\ ticker\ }$",
         label_visibility="visible",
@@ -18,8 +24,17 @@ def get_user_ticker():
     ).upper()
 
 
-# Validate and process the user's ticker input.
 def validate_input(user_ticker_input):
+    """
+    Validate the user-inputted ticker symbol by checking that only one is entered and 
+    attempting to download 1 day of data for it.
+    
+    Args:
+        user_ticker_input (str): The ticker symbol entered by the user.
+
+    Returns:
+        str: Valid ticker symbol if the validation passes, None otherwise.
+    """
 
     if user_ticker_input:
         # Step 1: Ensure only one ticker is provided
@@ -43,12 +58,21 @@ def validate_input(user_ticker_input):
         # Return the valid ticker if all checks pass
         return ticker
 
-# Load and display full historical data for the valid ticker
+
 @st.cache_data(show_spinner=False)
 def load_data(ticker):
+    """
+    Load historical data for the given ticker symbol from Yahoo Finance.
+
+    Args:
+        ticker (str): The ticker symbol for which data is to be fetched.
+
+    Returns:
+        pd.DataFrame: DataFrame containing historical data for the ticker.
+    """
     try:
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
-            # Fetch full historical data (no need to check data validity again)
+            # Fetch full historical data
             data = yf.download(ticker, START, TODAY)
             data.reset_index(inplace=True)
             return data
@@ -57,8 +81,17 @@ def load_data(ticker):
         return None
 
 
-# Retrieve ticker long name
+
 def get_ticker_name(ticker):
+    """
+    Get the long name of the given ticker (e.g., company name).
+
+    Args:
+        ticker (str): The ticker symbol.
+
+    Returns:
+        str: The long name of the company or the ticker itself if not available.
+    """
     try:
         info = yf.Ticker(ticker).info
         return info.get("longName", ticker)
@@ -67,6 +100,15 @@ def get_ticker_name(ticker):
 
 
 def get_ticker_info(ticker):
+    """
+    Fetch detailed stock, price, and business information for the provided ticker symbol.
+
+    Args:
+        ticker (str): The ticker symbol to fetch data for.
+
+    Returns:
+        tuple: Three DataFrames containing stock, price, and business metrics respectively.
+    """
     try:
         ticker_obj = yf.Ticker(ticker)
         stock_info = ticker_obj.info

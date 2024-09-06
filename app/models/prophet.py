@@ -6,7 +6,6 @@ import streamlit as st
 
 
 def fit_prophet_model(data, period):
-    print(period)
     """
     Fit a Prophet model to the provided data and forecast for the given period.
 
