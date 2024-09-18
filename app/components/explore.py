@@ -12,9 +12,6 @@ def explore_section(data, ticker):
     """
     st.markdown(f"<h2 style='text-align: center;'>🔍 Explore Data of {ticker}</h2>", unsafe_allow_html=True)
 
-    # Show historical data using a custom function
-    display_data(data, data, "historical")
-
     # Fetch stock, price, and business information for the given ticker
     stock_info_df, price_info_df, business_info_df = get_ticker_info(ticker)
 
@@ -34,6 +31,12 @@ def explore_section(data, ticker):
         st.dataframe(business_info_df.set_index(business_info_df.columns[0]), width=800)
 
     st.write("#####")
-    
+
+    st.write("5-Year Historical Data")
+    # Show historical data using a custom function
+    display_data(data, data, "historical", None)
+
+    st.write("#####")
+
     # Plot historical data for the ticker
     plot_data(data)

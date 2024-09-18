@@ -1,26 +1,29 @@
-# 💰Finance Predictor App
+# 💶Finance Predictor App
 
 ## 📋 Overview
-Predict assets like currencies, cryptocurrencies, and stock prices using ML models (Facebook Prophet).
+The Finance Predictor App is designed to predict asset prices (stocks, cryptocurrencies, etc.) using machine learning models specifically tailored for time series analysis, such as Prophet and ARIMA. Users can input a ticker symbol to explore historical financial data, ask AI for insights, or forecast future prices. The app integrates these models to provide financial insights through interactive charts and forecast accuracy metrics.
 
 **Deployed App:** [Finance Predictor App](https://fi-predictor.streamlit.app/)
 
 ## Project Structure
 
 - `main.py`: Entry point for the Streamlit app.
-- `models/`: Contains the models used for this project.
-- `utils/`: Utility functions for data handling and validation.
-- `requirements.txt`: Python dependencies.
-- `README.md`: Project documentation.
+- `app`: Root directory.
+    - `components/`: Contains scripts for UI elements, data exploration, forecasting, and Gen AI features.
+    - `data/`: Utility functions for data handling and validation.
+    - `models/`: Model scripts for forecasting and analytics.
+    - `static/`: Static files like CSS.
+- `requirements.txt`: Project dependencies.
+- `README.md`: Project description and instructions.
 
 ## 🛠️ Setup
 
 ### 📚 Prerequisites
 
-- Python 3.8 or higher
-- Proficiency in Python programming
-- Advanced understanding of machine learning models
-- Familiarity with time series analysis
+- Python 3.8+, proficient in Python programming.
+- Experience with Streamlit for web apps.
+- Knowledge of machine learning models for time series analysis, libraries, and evaluation metrics.
+- OpenAI API key and familiarity with LangChain for integrating generative AI and building AI agents.
 
 ### 📥 Installation 
 
@@ -51,7 +54,12 @@ Predict assets like currencies, cryptocurrencies, and stock prices using ML mode
 
 ## 💻 Usage
 
-1. Open your browser and navigate to the local Streamlit URL (usually `http://localhost:8501`).
+1. Open your browser and navigate to the local Streamlit URL.
 2. Type the ticker symbol of the asset you want to predict.
-3. Use the slider to choose the number of years for the prediction.
-4. The app will display the historical data, forecasted prices, and model accuracy.
+3. Explore Data: Review historical data and key financial metrics.
+4. Forecast Data: 
+    - Select the prediction period and forecasting model (ARIMA or Prophet). 
+    - The app will display forecasted prices, metrics, and model accuracy.
+5. Ask AI: 
+    - Enter your OpenAI API key and type a question about the financial data. 
+    - Press "Generate" to receive AI-driven insights based on the data.

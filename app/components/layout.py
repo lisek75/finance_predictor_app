@@ -1,5 +1,4 @@
 import streamlit as st
-from ..data import get_user_ticker, validate_input
 
 def initialize_app():
     """
@@ -38,7 +37,6 @@ def load_css(file_name):
         # Inject custom CSS styles into the app
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-
 def initialize_session_state():
     """
     Initialize the session state variables used in the app to keep track of the app's running state and outputs.
@@ -63,3 +61,7 @@ def initialize_session_state():
     # Initialize the variable for storing AI-generated responses
     if 'output_generate' not in st.session_state:
         st.session_state.output_generate = None
+
+    # Initialize a variable to track the previously selected model 
+    if 'previous_model' not in st.session_state:
+        st.session_state.previous_model = None

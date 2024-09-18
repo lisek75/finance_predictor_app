@@ -13,8 +13,9 @@ def forecast_section(data, ticker):
         data (pd.DataFrame): DataFrame with historical data for the ticker, including 'Date' and 'Close'.
 
     Functionality:
+        - Allows the user to select the ML model.
         - Allows the user to set a prediction period in years.
-        - Fits a Prophet model and returns forecasted data.
+        - Fits the selected model and returns forecasted data.
         - Displays model accuracy and relevant performance metrics.
     """
 
@@ -26,8 +27,28 @@ def forecast_section(data, ticker):
         1, 4, disabled=st.session_state.running
     )
 
+    st.sidebar.write('######')
+
     # Calculate the forecast period in days
     period = n_years * 365
+
+    # Checkbox to select between Prophet and ARIMA
+    model_selection = st.sidebar.radio(
+        r"$\textsf{\normalsize Select\ ML\ model:}$", 
+        ("Prophet", "ARIMA"),
+        disabled=st.session_state.running
+    )
+
+    # Check if the selected model has changed
+    if st.session_state.previous_model != model_selection:
+        # If the model has changed, reset session state for output prediction
+        st.session_state.output_predict = None  # Clear the stored prediction data
+        st.session_state.running = False  # Reset the running flag if needed
+
+    # Store the current selected model as the previous one for future comparisons
+    st.session_state.previous_model = model_selection
+
+    st.sidebar.write('######')
 
     # Button to trigger the prediction process
     predict_pressed = st.sidebar.button(
@@ -37,43 +58,76 @@ def forecast_section(data, ticker):
     )
 
     if predict_pressed:
-        # Display a loading spinner while fitting the model
-        with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
-            m, forecast = fit_prophet_model(data, period) # Fit the Prophet model
 
-        # Display a spinner while performing cross-validation
-        with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-            df_cv = cross_validate_model(m) # Cross-validate the model
+        if model_selection == "Prophet":
+            # Display a loading spinner while fitting the model
+            with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
+                m, forecast = fit_prophet_model(data, period) # Fit the Prophet model
 
-        # Calculate model performance metrics
-        metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
+            # Display a spinner while performing cross-validation
+            with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
+                df_cv = cross_validate_prophet(m) # Cross-validate the model
 
-        # Extract and calculate the model accuracy from MAPE
-        global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value']
-        m_accuracy = 100 - float(global_mape.strip('%')) 
+            # Calculate model performance metrics
+            metrics_df = calculate_metrics_prophet(df_cv['y'], df_cv['yhat'])
 
-        # Generate the forecast plot
-        forecast_fig = plot_forecast(m, forecast)
+            # Extract and calculate the model accuracy from MAPE
+            global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value']
+            m_accuracy = 100 - float(global_mape.strip('%')) 
 
-        # Store the results in session state to display later
-        st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
-        st.session_state.running = False
-        st.rerun() # Refresh the page to update the displayed results
+            # Generate the forecast plot
+            forecast_fig = plot_prophet_forecast(m, forecast)
 
-    # Check if the forecast results are stored in session state
+            # Store the results in session state to display later
+            st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
+            st.session_state.running = False
+            st.rerun() # Refresh the page to update the displayed results
+
+        elif model_selection == "ARIMA":
+
+            # Drop unecessary columns
+            data = data.drop(['Open', 'High', 'Low', 'Volume', 'Adj Close'], axis= 1)
+
+            # Display a loading spinner while fitting the model
+            with st.spinner('🔮 Fitting the ARIMA model...'):
+                m, forecast = fit_arima_model(data, period)  # Fit ARIMA model
+
+            # Display a spinner while performing cross-validation
+            with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
+                df_cv = cross_validation_arima(data, m) # Cross-validate the model
+
+            # Calculate ARIMA model metrics
+            metrics_df = calculate_metrics_arima(df_cv['Actual'], df_cv['Predicted'])
+
+            # Accuracy
+            mape_value = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value'].strip('%')
+            mape_value = float(mape_value)
+            m_accuracy = 100 - mape_value
+
+            # Generate the ARIMA forecast plot
+            forecast_fig = plot_arima_forecast(data, forecast)
+
+            # Store the results in session state
+            st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
+            st.session_state.running = False
+            st.rerun()  # Refresh the page
+
+
+    # Display the prophet forecast results
     if "output_predict" in st.session_state and st.session_state.output_predict:
         # Retrieve the stored forecast results
         forecast_fig, m_accuracy, metrics_df, forecast, data = st.session_state.output_predict
 
-        st.markdown(f"<h2 style='text-align: center;'>🔮 Forecast Data for {ticker}</h2>", unsafe_allow_html=True)
-
-        # Display the forecasted data
-        display_data(data, forecast, "forecast")
+        st.markdown(f"<h2 style='text-align: center;'>🔮 Forecast Data for {ticker} with {model_selection}</h2>", unsafe_allow_html=True)
 
         st.write('######')
 
+        st.write(f"{model_selection} Forecast Data")
+        # Display the forecasted data
+        display_data(data, forecast, "forecast", model_selection)
+
         # Display the model accuracy
-        st.markdown(f"<h5 class='model-accuracy'>Model Accuracy: {m_accuracy:.2f}%</h5>", unsafe_allow_html=True)
+        st.markdown(f"<h5 class='model-accuracy'>{model_selection} Model Accuracy: {m_accuracy:.2f}%</h5>", unsafe_allow_html=True)
 
         # Tip for interacting with the chart
         st.markdown(
@@ -89,6 +143,7 @@ def forecast_section(data, ticker):
 
         # Display the forecast plot
         st.plotly_chart(forecast_fig, use_container_width=True)
+        # st.pyplot(forecast_fig)
 
         st.write("**Metrics**")
 

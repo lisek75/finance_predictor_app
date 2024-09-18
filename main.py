@@ -39,7 +39,6 @@ def main():
         # Allow the user to choose between exploring data, asking AI, or forecasting
         action_selector(data, valid_ticker)
 
-
 # Execute the main function when the script is run
 if __name__ == "__main__":
     main()

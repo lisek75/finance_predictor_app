@@ -1,13 +1,7 @@
 import yfinance as yf
 import streamlit as st
 import pandas as pd
-from datetime import date
 import re
-
-# Define constants for start and end dates
-START = "2018-01-01" # Start date for fetching historical data
-TODAY = date.today().strftime("%Y-%m-%d")  # Today's date for fetching up-to-date data
-
 
 def get_user_ticker():
     """
@@ -37,8 +31,6 @@ def get_user_ticker():
     st.session_state.previous_ticker = new_ticker
 
     return new_ticker
-
-
 
 def validate_input(user_ticker_input):
     """
@@ -74,7 +66,6 @@ def validate_input(user_ticker_input):
         # Return the valid ticker if all checks pass
         return ticker
 
-
 @st.cache_data(show_spinner=False)
 def load_data(ticker):
     """
@@ -89,11 +80,11 @@ def load_data(ticker):
     try:
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
             # Fetch full historical data
-            data = yf.download(ticker, START, TODAY)
+            data = yf.download(ticker, period="5y", interval="1d")
             data.reset_index(inplace=True)
             return data
     except Exception as e:
-        st.error(f"❌ Error occurred while fetching data: {e}")
+        st.sidebar.error(f"❌ Error occurred while fetching data: {e}")
         return None
 
 def get_ticker_name(ticker):
@@ -111,7 +102,6 @@ def get_ticker_name(ticker):
         return info.get("longName", ticker)
     except Exception:
         return ticker
-
 
 def get_ticker_info(ticker):
     """

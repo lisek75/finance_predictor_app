@@ -59,7 +59,7 @@ def plot_data(data):
 
         # Customize layout of the plot
         fig.update_layout(
-            title='Historical Financial Data',  # Chart title
+            title='Historical Data Over 5 Years',  # Chart title
             xaxis_title='Date',  # X-axis label
             yaxis_title='Value',  # Y-axis label
             xaxis=dict(showgrid=False),  # Hide gridlines on the X-axis
