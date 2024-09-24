@@ -56,10 +56,14 @@ def validate_input(ticker_input):
             return None
 
         ticker = tickers[0].upper()
+        ticker_type = get_ticker_type(ticker)
 
-        # Step 2: Validate the ticker by fetching 1 day of data
+        # Step 2: Validate the ticker by fetching 1 day or 1 month of data
         try:
-            validation_data = yf.download(ticker, period="1d")
+            if ticker_type == "MUTUALFUND":
+                validation_data = yf.download(ticker, period="1mo")
+            else:
+                validation_data = yf.download(ticker, period="1d")
             if validation_data.empty:
                 st.sidebar.error("❌ Invalid ticker provided.")
                 return None
@@ -68,6 +72,23 @@ def validate_input(ticker_input):
             return None
         # Return the valid ticker if all checks pass
         return ticker
+
+def get_ticker_type(ticker):
+    """
+    Fetch the ticker type (e.g., stock, ETF, etc.) from Yahoo Finance.
+
+    Args:
+        ticker (str): The ticker symbol for which to get the type.
+
+    Returns:
+        str: The type of the ticker (e.g., 'EQUITY', 'ETF', 'Unknown').
+    """
+    try:
+        ticker_info = yf.Ticker(ticker).info
+        ticker_type = ticker_info.get('quoteType', 'Unknown')
+        return ticker_type
+    except Exception as e:
+        return f"Error: {e}"
 
 @st.cache_data(show_spinner=False)
 def load_data(ticker):
@@ -82,10 +103,12 @@ def load_data(ticker):
     """
     end = pd.to_datetime("today").date()
     start = end - pd.DateOffset(years=5)
+    
     try:
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
             # Fetch full historical data
-            data = yf.download(ticker, start=start, end=end, interval="1d")
+            data = yf.download(ticker, start=start, end=end)
+            # st.write(data)
             data.reset_index(inplace=True)
             return data
     except Exception as e:
@@ -104,11 +127,29 @@ def get_ticker_name(ticker):
     """
     try:
         info = yf.Ticker(ticker).info
-        return info.get("longName", ticker)
+        long_name = info.get("longName", ticker)
+        ticker_type = get_ticker_type(ticker)  # Call the function to get the ticker type
+        return f"{long_name} ({ticker_type})"
     except Exception:
-        return ticker
+        return f"{ticker} (Unknown)"
 
 def get_ticker_info(ticker):
+    """
+    Determine the type of the ticker and call the appropriate function to fetch detailed info.
+
+    Args:
+        ticker (str): The ticker symbol.
+
+    Returns:
+        tuple: DataFrames containing relevant info based on ticker type.
+    """
+    ticker_type = get_ticker_type(ticker)
+    if ticker_type == "EQUITY":
+        return get_stock_info(ticker)
+    else:
+        return None, None, None
+
+def get_stock_info(ticker):
     """
     Fetch detailed stock, price, and business information for the provided ticker symbol.
 
@@ -174,9 +215,24 @@ def get_ticker_info(ticker):
         }
         business_info_df = pd.DataFrame(business_data)
 
-        # Return the three DataFrames
+        # Display the stock information DataFrame
+        with st.expander(f"Stock Information for {ticker}", expanded=False):
+            st.write("######")
+            st.dataframe(stock_info_df.set_index(stock_info_df.columns[0]), width=800)
+
+        # Display the price information DataFrame
+        with st.expander(f"Price Information for {ticker}", expanded=False):
+            st.write("######")
+            st.dataframe(price_info_df.set_index(price_info_df.columns[0]), width=800)
+
+        # Display the business information DataFrame
+        with st.expander(f"Business Information for {ticker}", expanded=False):
+            st.write("######")
+            st.dataframe(business_info_df.set_index(business_info_df.columns[0]), width=800)
+
+        # Return the three DataFrames if needed elsewhere
         return stock_info_df, price_info_df, business_info_df
 
     except Exception as e:
-        print(f"Error fetching data for {ticker}: {e}")
+        st.error(f"Error fetching data for {ticker}: {e}")
         return None, None, None
