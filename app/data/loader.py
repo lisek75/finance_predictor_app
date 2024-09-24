@@ -39,7 +39,7 @@ def get_user_ticker():
 def validate_input(ticker_input):
     """
     Validate the user-inputted ticker symbol by checking that only one is entered and 
-    attempting to download 1 day of data for it.
+    attempting to download a piece of data for it.
     
     Args:
         user_ticker_input (str): The ticker symbol entered by the user.
@@ -57,9 +57,13 @@ def validate_input(ticker_input):
 
         ticker = tickers[0].upper()
         ticker_type = get_ticker_type(ticker)
+        print(ticker_type)
 
         # Step 2: Validate the ticker by fetching 1 day or 1 month of data
         try:
+            if ticker_type == "FUTURE":
+                st.sidebar.error("❌ Futures contracts are not supported because they lack sufficient long-term data for forecasting. Please enter a stock, cryptocurrency, or other asset.")
+                return None
             if ticker_type == "MUTUALFUND":
                 validation_data = yf.download(ticker, period="1mo")
             else:
@@ -81,14 +85,28 @@ def get_ticker_type(ticker):
         ticker (str): The ticker symbol for which to get the type.
 
     Returns:
-        str: The type of the ticker (e.g., 'EQUITY', 'ETF', 'Unknown').
+        str: Ticker type (e.g., 'EQUITY', 'ETF'), or None if there is an error.
     """
     try:
         ticker_info = yf.Ticker(ticker).info
+
+        # Check if the info is not empty
+        if not ticker_info:
+            st.warning("⚠️ The data is unavailable right now. Please try again later.")
+            return None
+
+        # Get the ticker type (e.g., EQUITY, ETF)
         ticker_type = ticker_info.get('quoteType', 'Unknown')
         return ticker_type
+    except KeyError:
+        # Handle if 'quoteType' is not found in the response
+        st.warning("⚠️ Unable to retrieve ticker type. Please try again later.")
+        return None
     except Exception as e:
-        return f"Error: {e}"
+        # Handle other exceptions, including connection errors
+        st.warning(f"❌ Unable to access Yahoo Finance API for ticker {ticker}. Please try again later.")
+        return None
+
 
 @st.cache_data(show_spinner=False)
 def load_data(ticker):
@@ -102,7 +120,7 @@ def load_data(ticker):
         pd.DataFrame: DataFrame containing historical data for the ticker.
     """
     end = pd.to_datetime("today").date()
-    start = end - pd.DateOffset(years=5)
+    start = (end - pd.DateOffset(years=5)).date()
     
     try:
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
