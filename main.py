@@ -10,17 +10,20 @@ def main():
     with various actions (Explore, Ask AI, Forecast).
     """
 
+    # Initialize session state variables to manage app state
+    initialize_session_state()
+
     # Initialize the Streamlit app with settings (title, page icon, sidebar)
     initialize_app()
 
     # Display the header and description of the app
     display_header()
 
+    display_learn_more()
+    display_homepage_instructions()
+
     # Load custom CSS for styling the app
     load_css("app/static/styles.css")
-
-    # Initialize session state variables to manage app state
-    initialize_session_state()
 
     # Get user input for the ticker symbol
     user_ticker_input = get_user_ticker()

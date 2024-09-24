@@ -16,23 +16,27 @@ def get_user_ticker():
         r"$\textsf{\normalsize Enter\ a\ ticker:\ }$",
         label_visibility="visible",
         disabled=st.session_state.running,
-        placeholder="e.g. AAPL, BTC=F, EURUSD=X"
+        placeholder="e.g. AAPL, BTC=F, EURUSD=X",
     ).upper()
 
-    # Check if the ticker has changed
+    st.sidebar.button("Go", disabled=st.session_state.running)
+
     if 'previous_ticker' in st.session_state and st.session_state.previous_ticker != new_ticker:
         # Reset data and predictions if the ticker has changed
         st.session_state.output_predict = None
         st.session_state.output_warning = None
         st.session_state.output_generate = None
+        st.session_state.selected_section = None
         st.session_state.running = False
 
     # Store the new ticker in session state
     st.session_state.previous_ticker = new_ticker
+    # Back to the homepage
+    st.session_state.page = "Homepage"
 
     return new_ticker
 
-def validate_input(user_ticker_input):
+def validate_input(ticker_input):
     """
     Validate the user-inputted ticker symbol by checking that only one is entered and 
     attempting to download 1 day of data for it.
@@ -44,9 +48,9 @@ def validate_input(user_ticker_input):
         str: Valid ticker symbol if the validation passes, None otherwise.
     """
 
-    if user_ticker_input:
+    if ticker_input:
         # Step 1: Ensure only one ticker is provided
-        tickers = re.split(r'\s+', user_ticker_input.strip())
+        tickers = re.split(r'\s+', ticker_input.strip())
         if len(tickers) != 1:
             st.sidebar.error("❌ Please provide only one ticker.")
             return None
@@ -62,7 +66,6 @@ def validate_input(user_ticker_input):
         except Exception as e:
             st.sidebar.error(f"❌ Error occurred during validation: {e}")
             return None
-
         # Return the valid ticker if all checks pass
         return ticker
 

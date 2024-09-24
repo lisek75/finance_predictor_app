@@ -24,7 +24,7 @@ def forecast_section(data, ticker):
     # Slider to allow the user to select the number of years for prediction
     n_years = st.sidebar.slider(
         r"$\textsf{\normalsize Years\ of\ prediction:}$", 
-        1, 4, disabled=st.session_state.running
+        1, 5, disabled=st.session_state.running
     )
 
     st.sidebar.write('######')
@@ -45,8 +45,8 @@ def forecast_section(data, ticker):
         st.session_state.output_predict = None  # Clear the stored prediction data
         st.session_state.running = False  # Reset the running flag if needed
 
-    # Store the current selected model as the previous one for future comparisons
-    st.session_state.previous_model = model_selection
+        # Store the current selected model as the previous one for future comparisons
+        st.session_state.previous_model = model_selection
 
     st.sidebar.write('######')
 
@@ -118,7 +118,7 @@ def forecast_section(data, ticker):
         # Retrieve the stored forecast results
         forecast_fig, m_accuracy, metrics_df, forecast, data = st.session_state.output_predict
 
-        st.markdown(f"<h2 style='text-align: center;'>🔮 Forecast Data for {ticker} with {model_selection}</h2>", unsafe_allow_html=True)
+        st.markdown(f"<h2>🔮 Forecast Data for {ticker} with {model_selection}</h2>", unsafe_allow_html=True)
 
         st.write('######')
 

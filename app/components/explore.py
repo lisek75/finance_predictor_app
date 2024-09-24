@@ -10,7 +10,7 @@ def explore_section(data, ticker):
         data (pd.DataFrame): Historical data for the selected ticker.
         ticker (str): The ticker symbol of the stock or asset being analyzed.
     """
-    st.markdown(f"<h2 style='text-align: center;'>🔍 Explore Data of {ticker}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2>🔍 Explore Data of {ticker}</h2>", unsafe_allow_html=True)
 
     # Fetch stock, price, and business information for the given ticker
     stock_info_df, price_info_df, business_info_df = get_ticker_info(ticker)
