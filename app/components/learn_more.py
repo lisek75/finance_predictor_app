@@ -14,7 +14,7 @@ def learn_more_page():
     st.write("""
     - Basic **Python** Programming.
     - Experience with **Streamlit** Web App Development.
-    - Familiarity with **SARIMA/Prophet models** and **cross-validation**.
+    - Familiarity with **ARIMA/Prophet models** and **cross-validation**.
     - Basic knowledge of **Machine Learning Libraries**: Pandas, pmdarima, scikit-learn, and Plotly.
     """)
 
@@ -22,7 +22,7 @@ def learn_more_page():
     st.write("""
     - Build advanced and interactive web apps with **Streamlit** (initialization, session states, dynamic updates …)
     - Fetch and validate financial data using **yfinance**.
-    - Implement **SARIMA** and **Prophet** models for time series forecasting, with **automatic parameter selection** for SARIMA.
+    - Implement **ARIMA** and **Prophet** models for time series forecasting, with **automatic parameter selection** for ARIMA.
     - Apply **Rolling cross-validation (ARIMA)** and **time-based cross-validation (Prophet)** for model evaluation.
     - Visualize data with **Plotly** for interactive insights.
     - Calculate **evaluation metrics (MAE, MAPE, RMSE)** with scikit-learn.
@@ -45,5 +45,3 @@ def learn_more_page():
     st.write("""
         To explore the complete code and more detailed documentation, visit the [Fi-Predictor GitHub Repository](https://github.com/lisek75/finance_predictor_app).
     """)
-    
-
