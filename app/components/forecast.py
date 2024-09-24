@@ -69,7 +69,7 @@ def forecast_section(data, ticker):
                 df_cv = cross_validate_prophet(m) # Cross-validate the model
 
             # Calculate model performance metrics
-            metrics_df = calculate_metrics_prophet(df_cv['y'], df_cv['yhat'])
+            metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
 
             # Extract and calculate the model accuracy from MAPE
             global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value']
@@ -97,7 +97,7 @@ def forecast_section(data, ticker):
                 df_cv = cross_validation_arima(data, m) # Cross-validate the model
 
             # Calculate ARIMA model metrics
-            metrics_df = calculate_metrics_arima(df_cv['Actual'], df_cv['Predicted'])
+            metrics_df = calculate_metrics(df_cv['Actual'], df_cv['Predicted'])
 
             # Accuracy
             mape_value = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value'].strip('%')
