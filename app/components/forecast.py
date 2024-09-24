@@ -101,8 +101,7 @@ def forecast_section(data, ticker):
 
             # Accuracy
             mape_value = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value'].strip('%')
-            mape_value = float(mape_value)
-            m_accuracy = 100 - mape_value
+            m_accuracy = 100 - float(mape_value)
 
             # Generate the ARIMA forecast plot
             forecast_fig = plot_arima_forecast(data, forecast)

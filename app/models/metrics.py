@@ -17,6 +17,7 @@ def calculate_metrics(actual, predicted):
     mae = mean_absolute_error(actual, predicted)
     rmse = np.sqrt(mean_squared_error(actual, predicted))
     mape = mean_absolute_percentage_error(actual, predicted) * 100
+    if mape > 100: mape = 100   # Cap MAPE at 100 if it exceeds 100
     
     metrics_df = pd.DataFrame({
         'Metrics': ['MAPE (Mean Absolute Percentage Error)', 'MAE (Mean Absolute Error)', 'RMSE (Root Mean Squared Error)'],
