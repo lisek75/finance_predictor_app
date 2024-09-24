@@ -80,10 +80,12 @@ def load_data(ticker):
     Returns:
         pd.DataFrame: DataFrame containing historical data for the ticker.
     """
+    end = pd.to_datetime("today").date()
+    start = end - pd.DateOffset(years=5)
     try:
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
             # Fetch full historical data
-            data = yf.download(ticker, period="5y", interval="1d")
+            data = yf.download(ticker, start=start, end=end, interval="1d")
             data.reset_index(inplace=True)
             return data
     except Exception as e:
