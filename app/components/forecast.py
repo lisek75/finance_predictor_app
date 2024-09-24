@@ -58,113 +58,106 @@ def forecast_section(data, ticker):
     )
 
     if predict_pressed:
+        handle_model_fitting(data, period, model_selection)
 
-        if model_selection == "Prophet":
-            # Display a loading spinner while fitting the model
-            with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
-                m, forecast = fit_prophet_model(data, period) # Fit the Prophet model
-
-            # Display a spinner while performing cross-validation
-            with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-                df_cv = cross_validate_prophet(m) # Cross-validate the model
-
-            # Calculate model performance metrics
-            metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
-
-            # Extract and calculate the model accuracy from MAPE
-            global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value']
-            m_accuracy = 100 - float(global_mape.strip('%')) 
-
-            # Generate the forecast plot
-            forecast_fig = plot_prophet_forecast(m, forecast)
-
-            # Store the results in session state to display later
-            st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
-            st.session_state.running = False
-            st.rerun() # Refresh the page to update the displayed results
-
-        elif model_selection == "ARIMA":
-
-            # Drop unecessary columns
-            data = data.drop(['Open', 'High', 'Low', 'Volume', 'Adj Close'], axis= 1)
-
-            # Display a loading spinner while fitting the model
-            with st.spinner('🔮 Fitting the ARIMA model...'):
-                m, forecast = fit_arima_model(data, period)  # Fit ARIMA model
-
-            # Display a spinner while performing cross-validation
-            with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-                df_cv = cross_validation_arima(data, m) # Cross-validate the model
-
-            # Calculate ARIMA model metrics
-            metrics_df = calculate_metrics(df_cv['Actual'], df_cv['Predicted'])
-
-            # Accuracy
-            mape_value = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value'].strip('%')
-            m_accuracy = 100 - float(mape_value)
-
-            # Generate the ARIMA forecast plot
-            forecast_fig = plot_arima_forecast(data, forecast)
-
-            # Store the results in session state
-            st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
-            st.session_state.running = False
-            st.rerun()  # Refresh the page
-
-
-    # Display the prophet forecast results
+    # Display the forecast results
     if "output_predict" in st.session_state and st.session_state.output_predict:
-        # Retrieve the stored forecast results
+        # Retrieve stored results
         forecast_fig, m_accuracy, metrics_df, forecast, data = st.session_state.output_predict
+        model_selection = st.session_state.previous_model
+        ticker = st.session_state.previous_ticker
 
-        st.markdown(f"<h2>🔮 Forecast Data for {ticker} with {model_selection}</h2>", unsafe_allow_html=True)
+        display_forecast_results(forecast_fig, m_accuracy, metrics_df, forecast, data, model_selection, ticker)
 
-        st.write('######')
+# Common code for models
+def handle_model_fitting(data, period, model_selection):
+    data = data[['Date', 'Close']]
 
-        st.write(f"{model_selection} Forecast Data")
-        # Display the forecasted data
-        display_data(data, forecast, "forecast", model_selection)
+    if model_selection == "Prophet":
+        with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
+            m, forecast = fit_prophet_model(data, period) # Fit the Prophet model
+        with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
+            df_cv = cross_validate_prophet(m) # Cross-validate the model
+        metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
+        forecast_fig = plot_prophet_forecast(m, forecast)
 
-        # Display the model accuracy
-        st.markdown(f"<h5 class='model-accuracy'>{model_selection} Model Accuracy: {m_accuracy:.2f}%</h5>", unsafe_allow_html=True)
+    elif model_selection == "ARIMA":
+        with st.spinner('🔮 Fitting the ARIMA model...'):
+            m, forecast = fit_arima_model(data, period)  # Fit ARIMA model
+        with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
+            df_cv = cross_validation_arima(data, m) # Cross-validate the model
+        metrics_df = calculate_metrics(df_cv['Actual'], df_cv['Predicted'])
+        forecast_fig = plot_arima_forecast(data, forecast)
 
-        # Tip for interacting with the chart
-        st.markdown(
-            """
-            <div class="tip-box">
-                ℹ️ <i>Tip: Hover over the chart and click the box icon to view it in full screen.</i>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value'].strip('%')
+    m_accuracy = 100 - float(global_mape)
 
-        st.write('#####')
+    st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
+    st.session_state.running = False
+    st.rerun()  # Refresh the page
 
-        # Display the forecast plot
-        st.plotly_chart(forecast_fig, use_container_width=True)
-        # st.pyplot(forecast_fig)
 
-        st.write("**Metrics**")
+def display_forecast_results(forecast_fig, m_accuracy, metrics_df, forecast, data, model_selection, ticker):
+    """
+    Function to display forecast results.
 
-        # Expandable section for showing metric definitions
-        with st.expander("Metric Definitions"):
-            st.markdown("""
-            - **MAPE**: Mean Absolute Percentage Error<br>
-                - Measures how far off the model's predictions are from the actual values, expressed as a percentage.<br>
-                - For example, a MAPE of 16% means the model's predictions are off by an average of 16% from the actual values.<br>
-                - Lower MAPE values indicate better model accuracy.
-            <br><br>
-            - **MAE**: Mean Absolute Error<br>
-                - Measures the average absolute difference between predicted and actual values.<br>
-                - Lower MAE indicates better model performance.
-            <br><br>
-            - **RMSE**: Root Mean Squared Error<br>
-                - Measures the square root of the average squared differences between predictions and actual values.<br>
-                - Lower RMSE means better accuracy.
-            """, unsafe_allow_html=True)
+    Args:
+        forecast_fig: Plotly figure object of the forecast plot.
+        m_accuracy: Model accuracy percentage.
+        metrics_df: DataFrame containing evaluation metrics.
+        forecast: Forecasted data.
+        data: Historical data.
+        model_selection: Name of the selected forecasting model.
+        ticker: Ticker symbol of the asset being forecasted.
+    """
+    # Display forecast data and model selection
+    st.markdown(f"<h2>🔮 Forecast Data for {ticker} with {model_selection}</h2>", unsafe_allow_html=True)
 
-        # Display the metrics DataFrame
-        st.dataframe(metrics_df, width=800)
+    # Display forecasted data and interactive charts
+    display_data(data, forecast, "forecast", model_selection)
+
+    # Show model accuracy
+    st.markdown(f"<h5 class='model-accuracy'>{model_selection} Model Accuracy: {m_accuracy:.2f}%</h5>", unsafe_allow_html=True)
+
+    # Tip for interacting with the chart
+    st.markdown(
+        """
+        <div class="tip-box">
+            ℹ️ <i>Tip: Hover over the chart and click the box icon to view it in full screen.</i>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+
+    st.write('#####')
+
+    # Display the forecast plot
+    st.plotly_chart(forecast_fig, use_column_width=True)
+
+    # Display the metrics
+    st.write("**Metrics**")
+
+    # Expandable section for showing metric definitions
+    with st.expander("Metric Definitions"):
+        st.markdown("""
+        - **MAPE**: Mean Absolute Percentage Error<br>
+            - Measures how far off the model's predictions are from the actual values, expressed as a percentage.<br>
+            - For example, a MAPE of 16% means the model's predictions are off by an average of 16% from the actual values.<br>
+            - Lower MAPE values indicate better model accuracy.
+        <br><br>
+        - **MAE**: Mean Absolute Error<br>
+            - Measures the average absolute difference between predicted and actual values.<br>
+            - Lower MAE indicates better model performance.
+        <br><br>
+        - **RMSE**: Root Mean Squared Error<br>
+            - Measures the square root of the average squared differences between predictions and actual values.<br>
+            - Lower RMSE means better accuracy.
+        """, unsafe_allow_html=True)
+
+    # Display the metrics DataFrame
+    st.dataframe(metrics_df, width=800)
+
+
 
 
 

@@ -7,30 +7,23 @@ import streamlit as st
 
 def fit_arima_model(data, period):
     """
-    Fits an ARIMA model to the historical 'Close' prices and forecasts future values.
+    Fits an ARIMA model and forecasts future values.
 
     Args:
-        data (pd.DataFrame): Historical data containing 'Date' and 'Close' columns.
-        period (int): Number of periods (days) to forecast into the future.
+        data: Historical data.
+        period: Number of periods (days) to forecast into the future.
 
     Returns:
         m_arima (AutoARIMA): Fitted ARIMA model.
-        forecast_df (pd.DataFrame): DataFrame containing forecasted values and corresponding dates.
+        forecast_df: DataFrame containing forecasted values and corresponding dates.
     """
 
     # Automatically find the best ARIMA order using AutoARIMA
     m_arima = auto_arima(
-                    data['Close'],
-                    seasonal=True, 
-                    m=7,                                # Weekly seasonality for financial data
-                    max_p=4, max_d=1, max_q=3,          # ARIMA order constraints
-                    max_P=2, max_D=1, max_Q=1,          # Seasonal ARIMA order constraints
-                    stepwise=True,
-                    trace=True,                         # Show model fitting process
-                    error_action='ignore',              # Ignore fitting errors for certain parameter combinations
-                    suppress_warnings=True,             # Suppress irrelevant warnings
-                    n_jobs=1                           # Utilize all CPU cores for faster computation
-                )
+                data['Close'],
+                trace=True,              # Show model fitting process
+                suppress_warnings=True,  # Suppress irrelevant warnings
+            )
     print(m_arima.summary())
 
     # Forecast for the specified future periods
@@ -52,11 +45,11 @@ def cross_validation_arima(data, m_arima):
     Performs rolling cross-validation for the ARIMA model to evaluate prediction performance.
 
     Args:
-        data (pd.DataFrame): Historical data containing 'Close' column.
+        data : Historical data.
         m_arima (AutoARIMA): Fitted ARIMA model.
 
     Returns:
-        results_df (pd.DataFrame): DataFrame with actual and predicted values during cross-validation.
+        results_df: DataFrame with actual and predicted values during cross-validation.
     """
     
     data = data['Close']  # Extract close price series
@@ -88,8 +81,8 @@ def plot_arima_forecast(data, forecast):
     Plots the ARIMA forecast along with historical data using Plotly.
 
     Args:
-        data (pd.DataFrame): Historical data with 'Date' and 'Close' columns.
-        forecast (pd.DataFrame): Forecasted values with 'Date' and 'Forecast' columns.
+        data: Historical data.
+        forecast: Forecasted values.
 
     Returns:
         fig (go.Figure): Plotly figure object with the forecast visualization.

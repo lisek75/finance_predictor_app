@@ -108,7 +108,6 @@ def load_data(ticker):
         with st.spinner('📈 Loading data... Hold tight! 🚀'):
             # Fetch full historical data
             data = yf.download(ticker, start=start, end=end)
-            # st.write(data)
             data.reset_index(inplace=True)
             return data
     except Exception as e:
