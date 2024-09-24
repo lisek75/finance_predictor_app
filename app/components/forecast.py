@@ -58,7 +58,7 @@ def forecast_section(data, ticker):
     )
 
     if predict_pressed:
-        handle_model_fitting(data, period, model_selection)
+        handle_models(data, period, model_selection)
 
     # Display the forecast results
     if "output_predict" in st.session_state and st.session_state.output_predict:
@@ -69,33 +69,49 @@ def forecast_section(data, ticker):
 
         display_forecast_results(forecast_fig, m_accuracy, metrics_df, forecast, data, model_selection, ticker)
 
-# Common code for models
-def handle_model_fitting(data, period, model_selection):
+def handle_models(data, period, model_selection):
+    """
+    Function to fit the selected forecasting model and generate predictions.
+
+    Args:
+        data : Historical data.
+        period: The number of days to forecast into the future.
+        model_selection: The forecasting model selected by the user.
+
+    Returns:
+        None: Updates the session state with forecast results, accuracy, and evaluation metrics.
+    """
+    # Filter to only the 'Date' and 'Close' columns required for the models
     data = data[['Date', 'Close']]
 
     if model_selection == "Prophet":
+        # Fit the Prophet model and cross-validate
         with st.spinner('🔮 Fitting the crystal ball... 🧙‍♂️'):
-            m, forecast = fit_prophet_model(data, period) # Fit the Prophet model
+            m, forecast = fit_prophet_model(data, period)
         with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-            df_cv = cross_validate_prophet(m) # Cross-validate the model
-        metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])
-        forecast_fig = plot_prophet_forecast(m, forecast)
+            df_cv = cross_validate_prophet(m)
+        metrics_df = calculate_metrics(df_cv['y'], df_cv['yhat'])  # Calculate performance metrics
+        forecast_fig = plot_prophet_forecast(m, forecast)  # Plot the forecast
 
     elif model_selection == "ARIMA":
+        # Fit the ARIMA model and cross-validate
         with st.spinner('🔮 Fitting the ARIMA model...'):
-            m, forecast = fit_arima_model(data, period)  # Fit ARIMA model
+            m, forecast = fit_arima_model(data, period) 
         with st.spinner('🤹‍♂️ Juggling some numbers... 🤔'):
-            df_cv = cross_validation_arima(data, m) # Cross-validate the model
-        metrics_df = calculate_metrics(df_cv['Actual'], df_cv['Predicted'])
-        forecast_fig = plot_arima_forecast(data, forecast)
+            df_cv = cross_validation_arima(data, m) 
+        metrics_df = calculate_metrics(df_cv['Actual'], df_cv['Predicted'])  # Calculate performance metrics
+        forecast_fig = plot_arima_forecast(data, forecast)  # Plot the forecast
 
+    # Extract the MAPE and compute the accuracy
     global_mape = metrics_df.loc['MAPE (Mean Absolute Percentage Error)', 'Value'].strip('%')
     m_accuracy = 100 - float(global_mape)
 
+    # Store forecast results in session state for display
     st.session_state.output_predict = (forecast_fig, m_accuracy, metrics_df, forecast, data)
-    st.session_state.running = False
-    st.rerun()  # Refresh the page
 
+    # Reset running state and rerun the app to update with new results
+    st.session_state.running = False
+    st.rerun()
 
 def display_forecast_results(forecast_fig, m_accuracy, metrics_df, forecast, data, model_selection, ticker):
     """
