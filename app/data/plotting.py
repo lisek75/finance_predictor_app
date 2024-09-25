@@ -12,8 +12,13 @@ def plot_data(data):
         data (pd.DataFrame): The DataFrame containing historical financial data.
     """
 
+    # Check if all values in the 'Volume' column are 0
+    if data['Volume'].sum() == 0:
+        default_selection = ['Open', 'High', 'Low', 'Close', 'Adj Close']
+    else:
+        default_selection = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+
     # Allow users to select which columns to plot, default to 'Close'
-    default_selection = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
     selected_columns = st.multiselect(
         r"$\textsf{\normalsize Select\ columns\ to\ plot:}$",
         options=default_selection, 

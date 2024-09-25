@@ -57,12 +57,11 @@ def validate_input(ticker_input):
 
         ticker = tickers[0].upper()
         ticker_type = get_ticker_type(ticker)
-        print(ticker_type)
 
         # Step 2: Validate the ticker by fetching 1 day or 1 month of data
         try:
-            if ticker_type == "FUTURE":
-                st.sidebar.error("❌ Futures contracts are not supported because they lack sufficient long-term data for forecasting. Please enter a stock, cryptocurrency, or other asset.")
+            if ticker_type in ["FUTURE", "OPTION"]:
+                st.sidebar.error("❌ Futures and options are not supported because they lack sufficient long-term data for forecasting. Please enter a stock, cryptocurrency, or other asset.")
                 return None
             if ticker_type == "MUTUALFUND":
                 validation_data = yf.download(ticker, period="1mo")
